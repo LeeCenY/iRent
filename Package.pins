@@ -17,7 +17,7 @@
       "package": "PerfectHTTP",
       "reason": null,
       "repositoryURL": "https://github.com/PerfectlySoft/Perfect-HTTP.git",
-      "version": "2.2.0"
+      "version": "2.2.1"
     },
     {
       "package": "PerfectHTTPServer",
