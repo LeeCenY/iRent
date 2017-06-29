@@ -11,5 +11,14 @@ public func makeWebDemoRoutes() -> Routes {
     // 登记信息
     routes.add(method: .post, uri: "/registration", handler: WebHandlers.registrationPost(request:response:))
     
+    //mongoDB数据库
+    routes.add(method: .get, uri: "/mongo", handler: WebHandlers.lineMongoDB(request:response:))
+    
+    //写入数据库
+    routes.add(method: .post, uri: "/mongo/add", handler: WebHandlers.saveMongoDB(request:response:))
+    
     return routes
 }
+
+
+
