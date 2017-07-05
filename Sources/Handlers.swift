@@ -75,7 +75,7 @@ public class WebHandlers {
     open static func lineMongoDB(request: HTTPRequest, response: HTTPResponse) {
         
         //创建连接
-        let client = try! MongoClient(uri: "mongodb://localhost:2701")
+        let client = try! MongoClient(uri: "mongodb://localhost:27017")
         
         //连接到具体的数据库，假设有个数据库名字叫 test
         let db = client.getDatabase(name: "tests")
@@ -115,7 +115,7 @@ public class WebHandlers {
     open static func saveMongoDB(request: HTTPRequest, response: HTTPResponse) {
         
         //创建连接
-        let client = try! MongoClient(uri: "mongodb://localhost:2701")
+        let client = try! MongoClient(uri: "mongodb://localhost:27017")
         
         //连接到具体的数据库，假设有个数据库名字叫 test
         let db = client.getDatabase(name: "tests")
