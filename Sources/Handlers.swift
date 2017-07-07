@@ -10,75 +10,76 @@ public class WebHandlers {
     /// - Parameters:
     ///   - request: 请求
     ///   - response: 响应
-    open static func registrationPost(request: HTTPRequest, response: HTTPResponse) {
-        
-        //    guard let mobilePhoneNumber = request.param(name: "mobilePhoneNumber"),
-        //        let idCardNumber = request.param(name: "idCardNumber"),
-        //        let roomNumber = request.param(name: "roomNumber"),
-        //        let waterNumber = request.param(name: "waterNumber"),
-        //        let electricityNumber = request.param(name: "electricityNumber"),
-        //        let rent = request.param(name: "rent"),
-        //        let deposit = request.param(name: "deposit"),
-        //        let network = request.param(name: "network"),
-        //        let trashFee = request.param(name: "trashFee"),
-        //        let registrationTime = request.param(name: "registrationTime")else {
-        //            response.setBody(string: "错误")
-        //            response.completed()
-        //            return
-        //    }
-        
-        //    let responsDic: [String: Any] = ["result":["mobilePhoneNumber": mobilePhoneNumber,
-        //                                               "idCardNumber": idCardNumber,
-        //                                               "roomNumber": roomNumber,
-        //                                               "waterNumber": waterNumber,
-        //                                               "electricityNumber": electricityNumber,
-        //                                               "rent": rent, "deposit": deposit,
-        //                                               "network": network,
-        //                                               "trashFee": trashFee,
-        //                                               "registrationTime": registrationTime,
-        //                                               "rentTime": rentTime],
-        //                                     "status": "200"]
-        
-        
-        let responsDic: [String: Any] = ["result":["mobilePhoneNumber": "mobilePhoneNumber",
-                                                   "idCardNumber": "mobilePhoneNumber",
-                                                   "roomNumber": "mobilePhoneNumber",
-                                                   "waterNumber": "mobilePhoneNumber",
-                                                   "electricityNumber": "mobilePhoneNumber",
-                                                   "rent": "mobilePhoneNumber", "deposit": "mobilePhoneNumber",
-                                                   "network": "mobilePhoneNumber",
-                                                   "trashFee": "mobilePhoneNumber",
-                                                   "registrationTime": "mobilePhoneNumber",
-                                                   "rentTime": "mobilePhoneNumber"],
-                                         "status": "200"]
-        
-        
+    open static func registration(_ request: HTTPRequest, _ response: HTTPResponse) {
         do {
-            try response.setBody(json: responsDic)
+            guard
+                let json = request.postBodyString,
+                let dict = try json.jsonDecode() as? [String : Any],
+                let mobilePhoneNumber = dict["mobilePhoneNumber"],
+                let idCardNumber = dict["idCardNumber"],
+                let roomNumber = dict["roomNumber"],
+                let waterNumber = dict["waterNumber"],
+                let electricityNumber = dict["electricityNumber"],
+                let rent = dict["rent"] else {
+                    response.setBody(string: "错误")
+                    response.completed()
+                    return
+            }
+            
+            //创建连接
+            let client = try! MongoClient(uri: "mongodb://localhost:27017")
+            
+            //连接到具体的数据库，假设有个数据库名字叫 test
+            let db = client.getDatabase(name: "rent")
+            
+            //定义集合
+            guard let collection = db.getCollection(name: "testcollection") else { return }
+            
+            //定义BSON对象，从请求的body部分取JSON对象
+            let bson = try! BSON(json: request.postBodyString!)
+            
+            //在关闭连接时注意关闭顺序与启动顺序相反，类似栈
+            defer {
+                bson.close()
+                collection.close()
+                db.close()
+                client.close()
+            }
+            
+            let result = collection.save(document: bson)
+            
+            var resultString: String
+            switch result {
+            case MongoCollection.Result.success:
+                resultString = "success"
+            case MongoCollection.Result.error:
+                resultString = "error"
+            default:
+                resultString = "other"
+            }
+            
+            let _ = try? response.setBody(json: ["result":resultString, "code": 200])
+            
+            response.setHeader(.contentType, value: "application/json")
+            response.completed()
+            
         } catch {
-            response.setBody(string: "josn转换错误")
+            response.setBody(string: "没值")
+            response.completed()
         }
-        response.completed()
-    
     }
-    
+
     /// 收租信息列表
     ///
     /// - Parameters:
     ///   - request: 请求
     ///   - response: 响应
-    open static func rentInformationGet(request: HTTPRequest, response: HTTPResponse) {
-        
-        
-    }
-    
-    open static func lineMongoDB(request: HTTPRequest, response: HTTPResponse) {
-        
+    open static func rentlist(_ request: HTTPRequest, _ response: HTTPResponse) {
         //创建连接
         let client = try! MongoClient(uri: "mongodb://localhost:27017")
         
         //连接到具体的数据库，假设有个数据库名字叫 test
-        let db = client.getDatabase(name: "tests")
+        let db = client.getDatabase(name: "rent")
         
         //定义集合
         guard let collection = db.getCollection(name: "testcollection") else { return }
@@ -89,10 +90,59 @@ public class WebHandlers {
             db.close()
             client.close()
         }
-
+        
         //执行查询
         let fnd = collection.find(query: BSON())
         
+        //初始化一个空数组用于存放结果记录集
+        var arr = [String]()
+        
+        // fnd 游标是一个 mongoCursor 类型，用于遍历结果
+        for x in fnd! {
+            arr.append(x.asString)
+        }
+        
+        // 返回一个格式化的 JSON 数组。
+        let returning = "{\"data\":[\(arr.joined(separator: ","))]}"
+        
+        //返回 JSON 字符串
+        response.appendBody(string: returning)
+        response.completed()
+        
+    }
+    
+//    BSON。appendArray（key：< String >，array：< BSON >）
+    open static func update(_ request: HTTPRequest, _ response:HTTPResponse) {
+        
+        let client = try! MongoClient.init(uri: "mongodb://localhost:27017")
+        let db = client.getDatabase(name: "rent")
+        guard let collection = db.getCollection(name: "testcollection") else{ return }
+    
+        let bson = BSON()
+        let bsons = BSON()
+        
+        defer {
+            bsons.close()
+            bson.close()
+            collection.close()
+            db.close()
+            client.close()
+        }
+        
+        guard let id = request.param(name: "_id"),
+              let rent = request.param(name: "rent"),
+              let electricityNumber = request.param(name: "electricityNumber")
+            else {
+                response.appendBody(string: "ccccccccccc")
+                response.completed()
+            return
+        }
+        
+        bson.append(oid: BSON.OID.init(id))
+
+        //执行查询
+        let fnd = collection.find(query: bson)
+
         //初始化一个空数组用于存放结果记录集
         var arr = [String]()
         
@@ -105,43 +155,19 @@ public class WebHandlers {
         // 返回一个格式化的 JSON 数组。
         let returning = "{\"data\":[\(arr.joined(separator: ","))]}"
         
+  
+        bsons.append(key: "rent", string: rent)
+        bsons.append(key: "electricityNumber", string: electricityNumber)
+        
+        
+        let ruste = collection.update(selector: bson, update: bsons)
+        
         //返回 JSON 字符串
         response.appendBody(string: returning)
         response.completed()
-        
-        
     }
     
-    open static func saveMongoDB(request: HTTPRequest, response: HTTPResponse) {
-        
-        //创建连接
-        let client = try! MongoClient(uri: "mongodb://localhost:27017")
-        
-        //连接到具体的数据库，假设有个数据库名字叫 test
-        let db = client.getDatabase(name: "tests")
-        
-        //定义集合
-        guard let collection = db.getCollection(name: "testcollection") else { return
-        }
-
-        //定义BSON对象，从请求的body部分取JSON对象
-        let bson = try! BSON(json: request.postBodyString!)
-        
-        //在关闭连接时注意关闭顺序与启动顺序相反，类似栈
-        defer {
-            bson.close()
-            collection.close()
-            db.close()
-            client.close()
-        }
-        
-        let result = collection.save(document: bson)
-
-        response.setHeader(.contentType, value: "application/json")
-        response.appendBody(string: "\(result)")
-        response.completed()
-    }
-
+    
 }
 
 struct Filter404: HTTPResponseFilter {
