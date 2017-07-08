@@ -111,7 +111,12 @@ public class WebHandlers {
         
     }
     
-//    BSON。appendArray（key：< String >，array：< BSON >）
+    
+    /// 更新水电数据
+    ///
+    /// - Parameters:
+    ///   - request: 请求
+    ///   - response: 响应
     open static func update(_ request: HTTPRequest, _ response:HTTPResponse) {
         
         let client = try! MongoClient.init(uri: "mongodb://localhost:27017")
@@ -119,20 +124,21 @@ public class WebHandlers {
         guard let collection = db.getCollection(name: "testcollection") else{ return }
     
         let bson = BSON()
-        let bsons = BSON()
+        let newBson = BSON()
         
         defer {
-            bsons.close()
+            newBson.close()
             bson.close()
             collection.close()
             db.close()
             client.close()
         }
         
-        guard let id = request.param(name: "_id"),
-              let rent = request.param(name: "rent"),
-              let electricityNumber = request.param(name: "electricityNumber")
-            else {
+        guard
+            let id = request.param(name: "_id"),
+            let rent = request.param(name: "rent"),
+            let electricityNumber = request.param(name: "electricityNumber"),
+            let waterNumber = request.param(name: "waterNumber") else {
                 response.appendBody(string: "ccccccccccc")
                 response.completed()
             return
@@ -140,30 +146,24 @@ public class WebHandlers {
         
         bson.append(oid: BSON.OID.init(id))
 
-        //执行查询
-        let fnd = collection.find(query: bson)
 
-        //初始化一个空数组用于存放结果记录集
-        var arr = [String]()
-        
-        // fnd 游标是一个 mongoCursor 类型，用于遍历结果
-        for x in fnd! {
-            arr.append(x.asString)
+        newBson.append(key: "rent", string: rent)
+        newBson.append(key: "electricityNumber", string: electricityNumber)
+        newBson.append(key: "waterNumber", string: waterNumber)
+        //selector 根据旧bson查找，update 新的bson
+        let result = collection.update(selector: bson, update: newBson)
+
+        var resultString: String
+        switch result {
+        case MongoCollection.Result.success:
+            resultString = "success"
+        case MongoCollection.Result.error:
+            resultString = "error"
+        default:
+            resultString = "other"
         }
-        
-        
-        // 返回一个格式化的 JSON 数组。
-        let returning = "{\"data\":[\(arr.joined(separator: ","))]}"
-        
-  
-        bsons.append(key: "rent", string: rent)
-        bsons.append(key: "electricityNumber", string: electricityNumber)
-        
-        
-        let ruste = collection.update(selector: bson, update: bsons)
-        
-        //返回 JSON 字符串
-        response.appendBody(string: returning)
+
+        response.appendBody(string: resultString)
         response.completed()
     }
     
