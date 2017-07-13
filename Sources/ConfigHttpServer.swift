@@ -7,7 +7,7 @@ import PerfectHTTPServer
 public func ConfigServer() -> HTTPServer {
     let server = HTTPServer()
     server.serverName = "127.0.0.1"
-    server.serverPort = 8536
+    server.serverPort = 8150
     return server
 }
 
