@@ -18,53 +18,28 @@ public class WebHandlers {
                 let mobilePhoneNumber = dict["mobilePhoneNumber"],
                 let idCardNumber = dict["idCardNumber"],
                 let roomNumber = dict["roomNumber"],
-                let waterNumber = dict["waterNumber"],
-                let electricityNumber = dict["electricityNumber"],
-                let rent = dict["rent"] else {
-                    response.setBody(string: "错误")
+                let water = dict["water"] else {
+                    try response.setBody(json: ["susuu":false, "code": "200"])
                     response.completed()
                     return
             }
             
-            //创建连接
-            let client = try! MongoClient(uri: "mongodb://localhost:27017")
+            let tenants = Tenants()
+            tenants.mobilePhoneNo = mobilePhoneNumber as! String
+            tenants.idNumber = idCardNumber as! String
+            tenants.roomNumber = roomNumber as! String
+            tenants.water = water as! [Dictionary<String, String>]
             
-            //连接到具体的数据库，假设有个数据库名字叫 test
-            let db = client.getDatabase(name: "rent")
-            
-            //定义集合
-            guard let collection = db.getCollection(name: "testcollection") else { return }
-            
-            //定义BSON对象，从请求的body部分取JSON对象
-            let bson = try! BSON(json: request.postBodyString!)
-            
-            //在关闭连接时注意关闭顺序与启动顺序相反，类似栈
-            defer {
-                bson.close()
-                collection.close()
-                db.close()
-                client.close()
+            do {
+                try tenants.save()
+                try response.setBody(json: ["susuu":true, "code": "200"])
+                response.completed()
+            } catch {
+                try response.setBody(json: ["susuu":false, "code": "200"])
+                response.completed()
             }
-            
-            let result = collection.save(document: bson)
-            
-            var resultString: String
-            switch result {
-            case MongoCollection.Result.success:
-                resultString = "success"
-            case MongoCollection.Result.error:
-                resultString = "error"
-            default:
-                resultString = "other"
-            }
-            
-            let _ = try? response.setBody(json: ["result":resultString, "code": 200])
-            
-            response.setHeader(.contentType, value: "application/json")
-            response.completed()
-            
         } catch {
-            response.setBody(string: "没值")
+            try! response.setBody(json: ["susuu":false, "code": "200"])
             response.completed()
         }
     }
@@ -79,10 +54,10 @@ public class WebHandlers {
         let client = try! MongoClient(uri: "mongodb://localhost:27017")
         
         //连接到具体的数据库，假设有个数据库名字叫 test
-        let db = client.getDatabase(name: "rent")
+        let db = client.getDatabase(name: "user")
         
         //定义集合
-        guard let collection = db.getCollection(name: "testcollection") else { return }
+        guard let collection = db.getCollection(name: "tenants") else { return }
         
         //在关闭连接时注意关闭顺序与启动顺序相反
         defer {
@@ -108,7 +83,6 @@ public class WebHandlers {
         //返回 JSON 字符串
         response.appendBody(string: returning)
         response.completed()
-        
     }
     
     
@@ -118,56 +92,36 @@ public class WebHandlers {
     ///   - request: 请求
     ///   - response: 响应
     open static func update(_ request: HTTPRequest, _ response:HTTPResponse) {
-        
-        let client = try! MongoClient.init(uri: "mongodb://localhost:27017")
-        let db = client.getDatabase(name: "rent")
-        guard let collection = db.getCollection(name: "testcollection") else{ return }
-    
-        let bson = BSON()
-        let newBson = BSON()
-        
-        defer {
-            newBson.close()
-            bson.close()
-            collection.close()
-            db.close()
-            client.close()
-        }
-        
-        guard
-            let id = request.param(name: "_id"),
-            let rent = request.param(name: "rent"),
-            let electricityNumber = request.param(name: "electricityNumber"),
-            let waterNumber = request.param(name: "waterNumber") else {
-                response.appendBody(string: "ccccccccccc")
+        do {
+            guard
+                let json = request.postBodyString,
+                let dict = try json.jsonDecode() as? [String : Any],
+                let id = dict["id"],
+                let water = dict["water"],
+                let electricity = dict["electricity"] else {
+                    try response.setBody(json: ["susuu":false, "code": "200"])
+                    response.completed()
+                    return
+            }
+            
+            let tenants = Tenants()
+            tenants.id = id as! String
+            tenants.water = water as! [Dictionary<String, String>]
+            tenants.electricity = electricity as! [Dictionary<String, String>]
+            do {
+                try tenants.save()
+                try response.setBody(json: ["susuu":true, "code": "200"])
                 response.completed()
-            return
+                
+            } catch {
+                throw error
+            }
+            
+        } catch {
+            try! response.setBody(json: ["susuu":false, "code": "200"])
+            response.completed()
         }
-        
-        bson.append(oid: BSON.OID.init(id))
-
-
-        newBson.append(key: "rent", string: rent)
-        newBson.append(key: "electricityNumber", string: electricityNumber)
-        newBson.append(key: "waterNumber", string: waterNumber)
-        //selector 根据旧bson查找，update 新的bson
-        let result = collection.update(selector: bson, update: newBson)
-
-        var resultString: String
-        switch result {
-        case MongoCollection.Result.success:
-            resultString = "success"
-        case MongoCollection.Result.error:
-            resultString = "error"
-        default:
-            resultString = "other"
-        }
-
-        response.appendBody(string: resultString)
-        response.completed()
     }
-    
-    
 }
 
 struct Filter404: HTTPResponseFilter {
@@ -185,8 +139,6 @@ struct Filter404: HTTPResponseFilter {
         }else {
             callback(.continue)
         }
-        
-        
     }
     
 }

@@ -1,7 +1,10 @@
 import PerfectLib
 import PerfectHTTP
 import PerfectHTTPServer
+import MongoDBStORM
 
+MongoDBConnection.host = "localhost"
+MongoDBConnection.database = "user"
 
 // HTTP服务器
 let server = ConfigServer()

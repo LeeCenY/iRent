@@ -22,8 +22,8 @@ class Tenants: MongoDBStORM {
     var internetFee: Bool = false
     var rent: Int = 0
     var deposit: Int = 0
-    var electricity: Int = 0
-    var water: Int = 0
+    var electricity = [Dictionary<String, String>()]
+    var water = [Dictionary<String, String>()]
     
     
     override init() {
@@ -44,5 +44,6 @@ class Tenants: MongoDBStORM {
         }
         return rows
     }
- 
+    
+    
 }
