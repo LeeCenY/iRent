@@ -8,16 +8,16 @@
       "version": "2.0.4"
     },
     {
-      "package": "MongoDB",
+      "package": "MySQL",
       "reason": null,
-      "repositoryURL": "https://github.com/PerfectlySoft/Perfect-MongoDB.git",
-      "version": "2.0.10"
+      "repositoryURL": "https://github.com/PerfectlySoft/Perfect-MySQL.git",
+      "version": "2.1.2"
     },
     {
-      "package": "MongoDBStORM",
+      "package": "MySQLStORM",
       "reason": null,
-      "repositoryURL": "https://github.com/SwiftORM/MongoDB-Storm.git",
-      "version": "1.0.4"
+      "repositoryURL": "https://github.com/SwiftORM/MySQL-StORM",
+      "version": "1.0.9"
     },
     {
       "package": "PerfectCURL",
@@ -98,9 +98,9 @@
       "version": "2.0.6"
     },
     {
-      "package": "libmongoc",
+      "package": "mysqlclient",
       "reason": null,
-      "repositoryURL": "https://github.com/PerfectlySoft/Perfect-mongo-c.git",
+      "repositoryURL": "https://github.com/PerfectlySoft/Perfect-mysqlclient.git",
       "version": "2.0.1"
     }
   ],

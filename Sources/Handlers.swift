@@ -1,10 +1,11 @@
 import PerfectLib
 import PerfectHTTP
-import MongoDB
+import MySQLStORM
+import StORM
 
 ///请求处理
 public class WebHandlers {
-
+    
     /// 登记信息
     ///
     /// - Parameters:
@@ -13,76 +14,126 @@ public class WebHandlers {
     open static func registration(_ request: HTTPRequest, _ response: HTTPResponse) {
         do {
             guard
-                let json = request.postBodyString,
-                let dict = try json.jsonDecode() as? [String : Any],
-                let mobilePhoneNumber = dict["mobilePhoneNumber"],
-                let idCardNumber = dict["idCardNumber"],
-                let roomNumber = dict["roomNumber"],
-                let water = dict["water"] else {
-                    try response.setBody(json: ["susuu":false, "code": "200"])
+                let json: String                    = request.postBodyString,
+                let dict: [String: Any]             = try json.jsonDecode()     as? [String : Any],
+                let idcardnumber: String            = dict["idcardnumber"]      as? String,
+                let phonenumber: String             = dict["phonenumber"]       as? String,
+                let roomnumber: String              = dict["roomnumber"]        as? String,
+                let leaseterm: Int                  = dict["leaseterm"]         as? Int,
+                let rent: Int                       = dict["rent"]              as? Int,
+                let deposit: Int                    = dict["deposit"]           as? Int,
+                let renttime: Int                   = dict["renttime"]          as? Int,
+                let internet: Bool                  = dict["internet"]          as? Bool,
+                let trashfee: Bool                  = dict["trashfee"]          as? Bool,
+                let meter: [[String: String]]       = dict["meter"]             as? [[String: String]],
+                let watermeter: [[String: String]]  = dict["watermeter"]        as? [[String: String]]
+                else {
+                    try response.setBody(json: ["success":false, "status": 200, "data": "参数没填完整"])
                     response.completed()
                     return
             }
             
             let tenants = Tenants()
-            tenants.mobilePhoneNo = mobilePhoneNumber as! String
-            tenants.idNumber = idCardNumber as! String
-            tenants.roomNumber = roomNumber as! String
-            tenants.water = water as! [Dictionary<String, String>]
+            tenants.idcardnumber    = idcardnumber
+            tenants.phonenumber     = phonenumber
+            tenants.roomnumber      = roomnumber
+            tenants.leaseterm       = leaseterm
+            tenants.rent            = rent
+            tenants.deposit         = deposit
+            tenants.renttime        = renttime
+            tenants.internet        = internet
+            tenants.trashfee        = trashfee
+            tenants.meter           = meter
+            tenants.watermeter      = watermeter
             
             do {
-                try tenants.save()
-                try response.setBody(json: ["susuu":true, "code": "200"])
+                try tenants.save { id in
+                    tenants.id = id as! Int
+                }
+                try response.setBody(json: ["success":true, "status": 200])
                 response.completed()
             } catch {
-                try response.setBody(json: ["susuu":false, "code": "200"])
+                try response.setBody(json: ["success":false, "status": 200])
                 response.completed()
             }
         } catch {
-            try! response.setBody(json: ["susuu":false, "code": "200"])
+            try! response.setBody(json: ["success":false, "status": 200])
             response.completed()
         }
     }
-
+    
     /// 收租信息列表
     ///
     /// - Parameters:
     ///   - request: 请求
     ///   - response: 响应
     open static func rentlist(_ request: HTTPRequest, _ response: HTTPResponse) {
-        //创建连接
-        let client = try! MongoClient(uri: "mongodb://localhost:27017")
-        
-        //连接到具体的数据库，假设有个数据库名字叫 test
-        let db = client.getDatabase(name: "user")
-        
-        //定义集合
-        guard let collection = db.getCollection(name: "tenants") else { return }
-        
-        //在关闭连接时注意关闭顺序与启动顺序相反
-        defer {
-            collection.close()
-            db.close()
-            client.close()
+        do {
+            let tenants = Tenants()
+            try tenants.findAll()
+            var tenantsArray: [[String: Any]] = []
+            for row in tenants.rows() {
+                tenantsArray.append(row.asDictionary() as [String : Any])
+            }
+            
+            var result = [String: Any]()
+            result.updateValue(200, forKey: "status")
+            result.updateValue(true, forKey: "message")
+            result.updateValue(tenantsArray, forKey: "data")
+            
+            guard let jsonString = try? result.jsonEncodedString() else {
+                try! response.setBody(json: ["success":false, "status": 200])
+                response.completed()
+                return
+            }
+            
+            response.setBody(string: jsonString)
+            response.setHeader(.contentType, value: "appliction/json")
+            response.completed()
+        } catch {
+            try! response.setBody(json: ["success":false, "status": 200])
+            response.completed()
         }
         
-        //执行查询
-        let fnd = collection.find(query: BSON())
-        
-        //初始化一个空数组用于存放结果记录集
-        var arr = [String]()
-        
-        // fnd 游标是一个 mongoCursor 类型，用于遍历结果
-        for x in fnd! {
-            arr.append(x.asString)
+    }
+    
+    
+    /// 查询房间住户信息
+    ///
+    /// - Parameters:
+    ///   - request: 请求
+    ///   - response: 响应
+    open static func queryRoomNo(_ request: HTTPRequest, _ response: HTTPResponse) {
+        do {
+            guard let roomnumber = request.param(name: "roomnumber") else {
+                try response.setBody(json: ["success":false, "status": 200])
+                response.completed()
+                return
+            }
+            
+            var queryRoomNo = [String: Any]()
+            queryRoomNo.updateValue(roomnumber, forKey: "roomnumber")
+            
+            let tenants = Tenants()
+            try tenants.find(queryRoomNo)
+            
+            var tenantsArray: [[String: Any]] = []
+            for row in tenants.rows() {
+                tenantsArray.append(row.asDictionary() as [String : Any])
+            }
+            
+            var result = [String: Any]()
+            result.updateValue(200, forKey: "status")
+            result.updateValue(true, forKey: "message")
+            result.updateValue(tenantsArray, forKey: "data")
+            
+            try response.setBody(json: result)
+            response.completed()
+        } catch {
+            try! response.setBody(json: ["success":false, "status": 200])
+            response.completed()
         }
         
-        // 返回一个格式化的 JSON 数组。
-        let returning = "{\"data\":[\(arr.joined(separator: ","))]}"
-        
-        //返回 JSON 字符串
-        response.appendBody(string: returning)
-        response.completed()
     }
     
     
@@ -91,34 +142,39 @@ public class WebHandlers {
     /// - Parameters:
     ///   - request: 请求
     ///   - response: 响应
-    open static func update(_ request: HTTPRequest, _ response:HTTPResponse) {
+    open static func update(_ request: HTTPRequest, _ response: HTTPResponse) {
         do {
             guard
                 let json = request.postBodyString,
                 let dict = try json.jsonDecode() as? [String : Any],
-                let id = dict["id"],
-                let water = dict["water"],
-                let electricity = dict["electricity"] else {
-                    try response.setBody(json: ["susuu":false, "code": "200"])
+                let id: Int = dict["id"] as? Int,
+                let meter: [[String: String]] = dict["meter"] as? [[String : String]],
+                let watermeter: [[String: String]] = dict["watermeter"] as? [[String : String]]
+                else {
+                    try response.setBody(json: ["success":false, "status": 200])
                     response.completed()
                     return
             }
             
-            let tenants = Tenants()
-            tenants.id = id as! String
-            tenants.water = water as! [Dictionary<String, String>]
-            tenants.electricity = electricity as! [Dictionary<String, String>]
+            let obj = Tenants()
+            obj.id = id
+            obj.watermeter = meter
+            obj.meter = watermeter
+            
             do {
-                try tenants.save()
-                try response.setBody(json: ["susuu":true, "code": "200"])
+                try obj.save { id in
+                    obj.id = id as! Int
+                }
+                
+                try response.setBody(json: ["success":true, "status": 200])
                 response.completed()
                 
             } catch {
-                throw error
+                try! response.setBody(json: ["success":false, "code": 200])
+                response.completed()
             }
-            
         } catch {
-            try! response.setBody(json: ["susuu":false, "code": "200"])
+            try! response.setBody(json: ["success":false, "status": 200])
             response.completed()
         }
     }

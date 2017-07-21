@@ -16,8 +16,10 @@ public func makeWebDemoRoutes() -> Routes {
     routes.add(method: .post, uri: "registration", handler: WebHandlers.registration)
     // 收租信息列表
     routes.add(method: .get, uri: "rentlist", handler: WebHandlers.rentlist)
-    //查询住户信息
+    // 更新住户信息
     routes.add(method: .post, uri: "update", handler: WebHandlers.update)
+    // 查询住户信息
+    routes.add(method: .get, uri: "roomnoquery", handler: WebHandlers.queryRoomNo)
     
     return routes
 }
