@@ -8,7 +8,7 @@ import MySQLStORM
 public func ConfigServer() -> HTTPServer {
     let server = HTTPServer()
     server.serverName = "127.0.0.1"
-    server.serverPort = 8150
+    server.serverPort = 8350
     return server
 }
 

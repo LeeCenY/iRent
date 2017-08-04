@@ -14,26 +14,28 @@ public class WebHandlers {
     open static func registration(_ request: HTTPRequest, _ response: HTTPResponse) {
         do {
             guard
-                let json: String                    = request.postBodyString,
-                let dict: [String: Any]             = try json.jsonDecode()     as? [String : Any],
-                let idcardnumber: String            = dict["idcardnumber"]      as? String,
-                let phonenumber: String             = dict["phonenumber"]       as? String,
-                let roomnumber: String              = dict["roomnumber"]        as? String,
-                let leaseterm: Int                  = dict["leaseterm"]         as? Int,
-                let rent: Int                       = dict["rent"]              as? Int,
-                let deposit: Int                    = dict["deposit"]           as? Int,
-                let renttime: Int                   = dict["renttime"]          as? Int,
-                let internet: Bool                  = dict["internet"]          as? Bool,
-                let trashfee: Bool                  = dict["trashfee"]          as? Bool,
-                let meter: [[String: String]]       = dict["meter"]             as? [[String: String]],
-                let watermeter: [[String: String]]  = dict["watermeter"]        as? [[String: String]]
+                let json:           String              = request.postBodyString,
+                let dict:           [String: Any]       = try json.jsonDecode()             as? [String : Any],
+                let idcardnumber:   String              = dict["idcardnumber"]              as? String,
+                let phonenumber:    String              = dict["phonenumber"]               as? String,
+                let roomnumber:     String              = dict["roomnumber"]                as? String,
+                let leaseterm:      String              = dict["leaseterm"]                 as? String,
+                let rent:           String              = dict["rent"]                      as? String,
+                let deposit:        String              = dict["deposit"]                   as? String,
+                let renttime:       Int                 = dict["renttime"]                  as? Int,
+                let internet:       Bool                = dict["internet"]                  as? Bool,
+                let trashfee:       Bool                = dict["trashfee"]                  as? Bool,
+                let meter:          [String: Any]       = dict["meter"]                     as? [String: Any],
+                let watermeter:     [String: Any]       = dict["watermeter"]                as? [String: Any]
                 else {
                     try response.setBody(json: ["success":false, "status": 200, "data": "参数没填完整"])
                     response.completed()
                     return
             }
-            
+
+
             let tenants = Tenants()
+            tenants.uuid            = UUID.init().string
             tenants.idcardnumber    = idcardnumber
             tenants.phonenumber     = phonenumber
             tenants.roomnumber      = roomnumber
@@ -43,12 +45,13 @@ public class WebHandlers {
             tenants.renttime        = renttime
             tenants.internet        = internet
             tenants.trashfee        = trashfee
-            tenants.meter           = meter
-            tenants.watermeter      = watermeter
+            tenants.meter           = [meter]
+            tenants.watermeter      = [watermeter]
             
             do {
                 try tenants.save { id in
                     tenants.id = id as! Int
+                    print("\(tenants.id)")
                 }
                 try response.setBody(json: ["success":true, "status": 200])
                 response.completed()
@@ -147,25 +150,42 @@ public class WebHandlers {
             guard
                 let json = request.postBodyString,
                 let dict = try json.jsonDecode() as? [String : Any],
-                let id: Int = dict["id"] as? Int,
-                let meter: [[String: String]] = dict["meter"] as? [[String : String]],
-                let watermeter: [[String: String]] = dict["watermeter"] as? [[String : String]]
+                let id: String = dict["id"] as? String,
+                let meter: [String: Any] = dict["meter"] as? [String: Any],
+                let watermeter: [String: Any] = dict["watermeter"] as? [String: Any]
                 else {
                     try response.setBody(json: ["success":false, "status": 200])
                     response.completed()
                     return
             }
             
-            let obj = Tenants()
-            obj.id = id
-            obj.watermeter = meter
-            obj.meter = watermeter
+            
+            let tenants = Tenants()
+        
             
             do {
-                try obj.save { id in
-                    obj.id = id as! Int
-                }
+                try tenants.get(id)
                 
+            } catch  {
+                throw error
+            }
+      
+             print(tenants.watermeter , tenants.idcardnumber)
+           
+            
+            
+            let obj = Tenants()
+            obj.id = Int(id)!
+            obj.watermeter = [meter]
+            obj.meter = [watermeter]
+
+            do {
+                try obj.update(
+                    cols: ["meter","watermeter"],
+                    params: [obj.meter, obj.watermeter],
+                    idName: "id",
+                    idValue: obj.id
+                )
                 try response.setBody(json: ["success":true, "status": 200])
                 response.completed()
                 
