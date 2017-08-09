@@ -25,15 +25,15 @@ public class WebHandlers {
                 let renttime:       Int                 = dict["renttime"]                  as? Int,
                 let internet:       Bool                = dict["internet"]                  as? Bool,
                 let trashfee:       Bool                = dict["trashfee"]                  as? Bool,
-                let meter:          [String: Any]       = dict["meter"]                     as? [String: Any],
-                let watermeter:     [String: Any]       = dict["watermeter"]                as? [String: Any]
+                let meter:          [String: String]    = dict["meter"]                     as? [String: String],
+                let watermeter:     [String: String]    = dict["watermeter"]                as? [String: String]
                 else {
                     try response.setBody(json: ["success":false, "status": 200, "data": "参数没填完整"])
                     response.completed()
                     return
             }
 
-
+            
             let tenants = Tenants()
             tenants.uuid            = UUID.init().string
             tenants.idcardnumber    = idcardnumber
@@ -45,14 +45,35 @@ public class WebHandlers {
             tenants.renttime        = renttime
             tenants.internet        = internet
             tenants.trashfee        = trashfee
-            tenants.meter           = [meter]
-            tenants.watermeter      = [watermeter]
+            
+            
+            let meters = Meters()
+            for (key, value) in meter {
+                meters.meter_month = key
+                meters.meter_number = value
+            }
+            
+            let watermeters = Watermeters()
+            for (key, value) in watermeter {
+                watermeters.watermeter_month = key
+                watermeters.watermeter_number = value
+            }
             
             do {
                 try tenants.save { id in
                     tenants.id = id as! Int
-                    print("\(tenants.id)")
                 }
+                
+                meters.tenants_id = tenants.id
+                try meters.save { id in
+                    meters.id = id as! Int
+                }
+                
+                watermeters.tenants_id = tenants.id
+                try watermeters.save { id in
+                    watermeters.id = id as! Int
+                }
+                
                 try response.setBody(json: ["success":true, "status": 200])
                 response.completed()
             } catch {
@@ -71,12 +92,26 @@ public class WebHandlers {
     ///   - request: 请求
     ///   - response: 响应
     open static func rentlist(_ request: HTTPRequest, _ response: HTTPResponse) {
+        
+        let gameTest = Tenants()
+        do {
+            try gameTest.get("143")
+         
+        } catch {
+            print("gameTest.get error: \(error)")
+        }
+        gameTest._meters.forEach { meters  in
+            print("meters \(meters.meter_month), \(meters.meter_number)")
+        }
+        
+        
+        
         do {
             let tenants = Tenants()
             try tenants.findAll()
             var tenantsArray: [[String: Any]] = []
             for row in tenants.rows() {
-                tenantsArray.append(row.asDictionary() as [String : Any])
+                tenantsArray.append(row.asDict() as [String : Any])
             }
             
             var result = [String: Any]()
@@ -122,7 +157,7 @@ public class WebHandlers {
             
             var tenantsArray: [[String: Any]] = []
             for row in tenants.rows() {
-                tenantsArray.append(row.asDictionary() as [String : Any])
+                tenantsArray.append(row.asDict() as [String : Any])
             }
             
             var result = [String: Any]()
@@ -150,9 +185,9 @@ public class WebHandlers {
             guard
                 let json = request.postBodyString,
                 let dict = try json.jsonDecode() as? [String : Any],
-                let id: String = dict["id"] as? String,
-                let meter: [String: Any] = dict["meter"] as? [String: Any],
-                let watermeter: [String: Any] = dict["watermeter"] as? [String: Any]
+                let id: String = dict["id"] as? String
+//                let meter: [String: Any] = dict["meter"] as? [String: Any],
+//                let watermeter: [String: Any] = dict["watermeter"] as? [String: Any]
                 else {
                     try response.setBody(json: ["success":false, "status": 200])
                     response.completed()
@@ -170,29 +205,29 @@ public class WebHandlers {
                 throw error
             }
       
-             print(tenants.watermeter , tenants.idcardnumber)
+//             print(tenants.watermeter , tenants.idcardnumber)
            
             
             
             let obj = Tenants()
             obj.id = Int(id)!
-            obj.watermeter = [meter]
-            obj.meter = [watermeter]
+//            obj.watermeter = [meter]
+//            obj.meter = [watermeter]
 
-            do {
-                try obj.update(
-                    cols: ["meter","watermeter"],
-                    params: [obj.meter, obj.watermeter],
-                    idName: "id",
-                    idValue: obj.id
-                )
-                try response.setBody(json: ["success":true, "status": 200])
-                response.completed()
-                
-            } catch {
-                try! response.setBody(json: ["success":false, "code": 200])
-                response.completed()
-            }
+//            do {
+//                try obj.update(
+//                    cols: ["meter","watermeter"],
+////                    params: [obj.meter, obj.watermeter],
+//                    idName: "id",
+//                    idValue: obj.id
+//                )
+//                try response.setBody(json: ["success":true, "status": 200])
+//                response.completed()
+//                
+//            } catch {
+//                try! response.setBody(json: ["success":false, "code": 200])
+//                response.completed()
+//            }
         } catch {
             try! response.setBody(json: ["success":false, "status": 200])
             response.completed()
