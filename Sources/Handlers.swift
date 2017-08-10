@@ -193,41 +193,26 @@ public class WebHandlers {
                     response.completed()
                     return
             }
-            
-            
-            let tenants = Tenants()
-        
-            
-            do {
-                try tenants.get(id)
-                
-            } catch  {
-                throw error
-            }
-      
-//             print(tenants.watermeter , tenants.idcardnumber)
-           
-            
-            
-            let obj = Tenants()
-            obj.id = Int(id)!
-//            obj.watermeter = [meter]
-//            obj.meter = [watermeter]
 
-//            do {
-//                try obj.update(
-//                    cols: ["meter","watermeter"],
-////                    params: [obj.meter, obj.watermeter],
-//                    idName: "id",
-//                    idValue: obj.id
-//                )
-//                try response.setBody(json: ["success":true, "status": 200])
-//                response.completed()
-//                
-//            } catch {
-//                try! response.setBody(json: ["success":false, "code": 200])
-//                response.completed()
-//            }
+            let obj = Meters()
+            obj.tenants_id = Int(id)!
+            obj.meter_month = "1711"
+            obj.meter_number = "145645"
+
+            do {
+             let s =  try obj.insert(
+                    cols: ["tenants_id","meter_month","meter_number"],
+                    params: [obj.tenants_id, obj.meter_month, obj.meter_number]
+                )
+                
+                print(s)
+                try response.setBody(json: ["success":true, "status": 200])
+                response.completed()
+                
+            } catch {
+                try! response.setBody(json: ["success":false, "code": 200])
+                response.completed()
+            }
         } catch {
             try! response.setBody(json: ["success":false, "status": 200])
             response.completed()
