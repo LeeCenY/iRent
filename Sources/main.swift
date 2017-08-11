@@ -4,6 +4,16 @@ import PerfectHTTPServer
 
 let _ = ConfigMySql()
 
+let tenantsSetup = Tenants()
+try! tenantsSetup.setup()
+
+let electricMetersSetup = ElectricMeters()
+try! electricMetersSetup.setup()
+
+let watermeters = Watermeters()
+try! watermeters.setup()
+
+
 // HTTP服务器
 let server = ConfigServer()
 server.addRoutes(makeWebDemoRoutes())

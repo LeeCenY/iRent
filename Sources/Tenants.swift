@@ -21,12 +21,12 @@ class Tenants: MySQLStORM {
     var rent: String                    = ""                    //租金
     var deposit: String                 = ""                    //押金
     var renttime: Int                   = 1                     //收租日期
-    var internet: Bool                  = false                 //网络
-    var trashfee: Bool                  = false                 //垃圾费
+    var internet: Int                   = 0                 //网络
+    var trashfee: Int                   = 0                 //垃圾费
     var registertime: String            = "\(Date())"           //登记时间
     var updatetime: String              = "\(Date())"           //更新时间
-    var _meters                         = [Meters]()            //电表
-    var _watermeters                     = [Watermeters]()      //水表
+    var _electricmeters                 = [ElectricMeters]()            //电表
+    var _watermeters                    = [Watermeters]()      //水表
     
     
     override func table() -> String {
@@ -34,7 +34,7 @@ class Tenants: MySQLStORM {
     }
     
     override func to(_ this: StORMRow) {
-        id              = Int(this.data["id"]           as? UInt32                      ?? 0)
+        id              = Int(this.data["id"]           as? Int32                       ?? 0)
         uuid            = this.data["uuid"]             as? String                      ?? UUID.init().uuidString
         idcardnumber    = this.data["idcardnumber"]     as? String                      ?? ""
         phonenumber     = this.data["phonenumber"]      as? String                      ?? ""
@@ -43,12 +43,12 @@ class Tenants: MySQLStORM {
         rent            = this.data["rent"]             as? String                      ?? ""
         deposit         = this.data["deposit"]          as? String                      ?? ""
         renttime        = this.data["renttime"]         as? Int                         ?? 1
-        internet        = this.data["internet"]         as? Bool                        ?? false
-        trashfee        = this.data["trashfee"]         as? Bool                        ?? false
+        internet        = this.data["internet"]         as? Int                         ?? 0
+        trashfee        = this.data["trashfee"]         as? Int                         ?? 0
         registertime    = this.data["registertime"]     as? String                      ?? "\(Date())"
         updatetime      = this.data["updatetime"]       as? String                      ?? "\(Date())"
-        _meters         = getMeters()
-        _watermeters    = getWatermeter()
+        _electricmeters = getElectricMeters()
+        _watermeters    = getWatermeters()
     }
 
     func rows() -> [Tenants] {
@@ -61,18 +61,18 @@ class Tenants: MySQLStORM {
         return rows
     }
     
-    public func getMeters() -> [Meters] {
-        let meters = Meters()
+    public func getElectricMeters() -> [ElectricMeters] {
+        let ammeters = ElectricMeters()
         do {
             //根据 id 值来查询到水表数据库中 tenants_id 的数据
-            try meters.select(whereclause: "tenants_id = ?", params: [id], orderby: ["meter_month DESC"])
+            try ammeters.select(whereclause: "tenants_id = ?", params: [id], orderby: ["electricmeter_month DESC"])
         } catch {
-            print("meters get error: \(error)")
+            print("electricmeters get error: \(error)")
         }
-        return meters.rows()
+        return ammeters.rows()
     }
     
-    public func getWatermeter() -> [Watermeters] {
+    public func getWatermeters() -> [Watermeters] {
         let watermeters = Watermeters()
         do {
             try watermeters.select(whereclause: "tenants_id = ?", params: [id], orderby: ["watermeter_month DESC"])
@@ -84,20 +84,18 @@ class Tenants: MySQLStORM {
     
     func asDict() -> [String: Any] {
         
-        var metersArray = [[String: Any]]()
-        _meters.forEach { meters in
+        var electricmetersArray = [[String: Any]]()
+        _electricmeters.forEach { electricmeters in
             var dict = [String: Any]()
-//            dict["tenants_id"] = meters.tenants_id
-            dict[meters.meter_month] = meters.meter_number
-            metersArray.append(dict);
+            dict[electricmeters.electricmeter_month] = electricmeters.electricmeter_number
+            electricmetersArray.append(dict);
         }
         
-        var watermeterArray = [[String: Any]]()
-        _watermeters.forEach { watermeter in
+        var watermetersArray = [[String: Any]]()
+        _watermeters.forEach { watermeters in
             var dict = [String: Any]()
-//            dict["tenants_id"]                  = watermeter.tenants_id
-            dict[watermeter.watermeter_month]   = watermeter.watermeter_number
-            watermeterArray.append(dict);
+            dict[watermeters.watermeter_month] = watermeters.watermeter_number
+            watermetersArray.append(dict);
         }
         
         return [
@@ -114,8 +112,8 @@ class Tenants: MySQLStORM {
             "trashfee":         self.trashfee,
             "registertime":     self.registertime,
             "updatetime":       self.updatetime,
-            "meter":            metersArray,
-            "watermeter":  watermeterArray,
+            "meter":            electricmetersArray,
+            "watermeter":       watermetersArray,
         ]
     }
 }

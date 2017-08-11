@@ -25,8 +25,9 @@ public class WebHandlers {
                 let renttime:       Int                 = dict["renttime"]                  as? Int,
                 let internet:       Bool                = dict["internet"]                  as? Bool,
                 let trashfee:       Bool                = dict["trashfee"]                  as? Bool,
-                let meter:          [String: String]    = dict["meter"]                     as? [String: String],
-                let watermeter:     [String: String]    = dict["watermeter"]                as? [String: String]
+                let water:          String              = dict["water"]                as? String,
+                let electric:       String              = dict["electric"]                  as? String,
+                let month:          String              = dict["month"]                     as? String
                 else {
                     try response.setBody(json: ["success":false, "status": 200, "data": "参数没填完整"])
                     response.completed()
@@ -43,30 +44,26 @@ public class WebHandlers {
             tenants.rent            = rent
             tenants.deposit         = deposit
             tenants.renttime        = renttime
-            tenants.internet        = internet
-            tenants.trashfee        = trashfee
+            tenants.internet        = internet ? 1 : 0
+            tenants.trashfee        = trashfee ? 1 : 0
             
             
-            let meters = Meters()
-            for (key, value) in meter {
-                meters.meter_month = key
-                meters.meter_number = value
-            }
+            let electricMeters = ElectricMeters()
+            electricMeters.electricmeter_month = month
+            electricMeters.electricmeter_number = Int(electric)!
             
             let watermeters = Watermeters()
-            for (key, value) in watermeter {
-                watermeters.watermeter_month = key
-                watermeters.watermeter_number = value
-            }
+            watermeters.watermeter_month = month
+            watermeters.watermeter_number = Int(water)!
             
             do {
                 try tenants.save { id in
                     tenants.id = id as! Int
                 }
                 
-                meters.tenants_id = tenants.id
-                try meters.save { id in
-                    meters.id = id as! Int
+                electricMeters.tenants_id = tenants.id
+                try electricMeters.save { id in
+                    electricMeters.id = id as! Int
                 }
                 
                 watermeters.tenants_id = tenants.id
@@ -180,32 +177,45 @@ public class WebHandlers {
             guard
                 let json = request.postBodyString,
                 let dict = try json.jsonDecode() as? [String : Any],
-                let id: String = dict["id"] as? String
-//                let meter: [String: Any] = dict["meter"] as? [String: Any],
-//                let watermeter: [String: Any] = dict["watermeter"] as? [String: Any]
+                let id: String          = dict["id"]            as? String,
+                let month: String       = dict["month"]         as? String,
+                let electric: String    = dict["electric"]      as? String,
+                let water: String       = dict["water"]         as? String
                 else {
                     try response.setBody(json: ["success":false, "status": 200])
                     response.completed()
                     return
             }
-
-            let obj = Meters()
+            
+            let obj = ElectricMeters()
             obj.tenants_id = Int(id)!
-            obj.meter_month = "1711"
-            obj.meter_number = "145645"
+            obj.electricmeter_month   = month
+            obj.electricmeter_number  = Int(electric)!
+            
+            let obs = Watermeters()
+            obs.tenants_id = Int(id)!
+            obs.watermeter_month    = month
+            obs.watermeter_number   = Int(water)!
 
             do {
-             let s =  try obj.insert(
-                    cols: ["tenants_id","meter_month","meter_number"],
-                    params: [obj.tenants_id, obj.meter_month, obj.meter_number]
+                let s =  try obj.insert(
+                    cols: ["tenants_id","electricmeter_month","electricmeter_number"],
+                    params: [obj.tenants_id, obj.electricmeter_month, obj.electricmeter_number]
                 )
+                
+                let ss =  try obs.insert(
+                    cols: ["tenants_id","watermeter_month","watermeter_number"],
+                    params: [obs.tenants_id, obs.watermeter_month, obs.watermeter_number]
+                )
+                
+                print(ss)
                 
                 print(s)
                 try response.setBody(json: ["success":true, "status": 200])
                 response.completed()
                 
             } catch {
-                try! response.setBody(json: ["success":false, "code": 200])
+                try! response.setBody(json: ["success":false, "status": 200])
                 response.completed()
             }
         } catch {
@@ -213,6 +223,8 @@ public class WebHandlers {
             response.completed()
         }
     }
+
+    
 }
 
 struct Filter404: HTTPResponseFilter {

@@ -77,7 +77,7 @@
       "package": "StORM",
       "reason": null,
       "repositoryURL": "https://github.com/SwiftORM/StORM.git",
-      "version": "1.0.3"
+      "version": "1.1.0"
     },
     {
       "package": "SwiftMoment",
