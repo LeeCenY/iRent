@@ -92,23 +92,18 @@ public class WebHandlers {
     ///   - request: 请求
     ///   - response: 响应
     open static func rentlist(_ request: HTTPRequest, _ response: HTTPResponse) {
-        
-        let gameTest = Tenants()
         do {
-            try gameTest.get("143")
-         
-        } catch {
-            print("gameTest.get error: \(error)")
-        }
-        gameTest._meters.forEach { meters  in
-            print("meters \(meters.meter_month), \(meters.meter_number)")
-        }
-        
-        
-        
-        do {
+            var offset = 0
+            if let page = request.param(name: "page") {
+                offset = Int(page)!
+                offset = (offset - 1) * 2
+            }
+
             let tenants = Tenants()
-            try tenants.findAll()
+            let s = StORMCursor.init(limit: 20, offset: offset)
+
+            try tenants.select(columns: [], whereclause: "id", params: [], orderby: [], cursor: s, joins: [], having: [], groupBy: [])
+            
             var tenantsArray: [[String: Any]] = []
             for row in tenants.rows() {
                 tenantsArray.append(row.asDict() as [String : Any])
@@ -154,7 +149,7 @@ public class WebHandlers {
             
             let tenants = Tenants()
             try tenants.find(queryRoomNo)
-            
+
             var tenantsArray: [[String: Any]] = []
             for row in tenants.rows() {
                 tenantsArray.append(row.asDict() as [String : Any])

@@ -65,7 +65,7 @@ class Tenants: MySQLStORM {
         let meters = Meters()
         do {
             //根据 id 值来查询到水表数据库中 tenants_id 的数据
-            try meters.select(whereclause: "tenants_id = ?", params: [id], orderby: ["id"])
+            try meters.select(whereclause: "tenants_id = ?", params: [id], orderby: ["meter_month DESC"])
         } catch {
             print("meters get error: \(error)")
         }
@@ -75,7 +75,7 @@ class Tenants: MySQLStORM {
     public func getWatermeter() -> [Watermeters] {
         let watermeters = Watermeters()
         do {
-            try watermeters.select(whereclause: "tenants_id = ?", params: [id], orderby: ["id"])
+            try watermeters.select(whereclause: "tenants_id = ?", params: [id], orderby: ["watermeter_month DESC"])
         } catch {
             print("watermeters get error: \(error)")
         }
