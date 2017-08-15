@@ -16,25 +16,84 @@ public class WebHandlers {
         do {
             guard
                 let json:           String              = request.postBodyString,
-                let dict:           [String: Any]       = try json.jsonDecode()             as? [String : Any],
-                let idcardnumber:   String              = dict["idcardnumber"]              as? String,
-                let phonenumber:    String              = dict["phonenumber"]               as? String,
-                let roomnumber:     String              = dict["roomnumber"]                as? String,
-                let leaseterm:      String              = dict["leaseterm"]                 as? String,
-                let rent:           String              = dict["rent"]                      as? String,
-                let deposit:        String              = dict["deposit"]                   as? String,
-                let renttime:       Int                 = dict["renttime"]                  as? Int,
-                let internet:       Bool                = dict["internet"]                  as? Bool,
-                let trashfee:       Bool                = dict["trashfee"]                  as? Bool,
-                let water:          Int                 = dict["water"]                     as? Int,
-                let electric:       Int                 = dict["electric"]                  as? Int,
-                let month:          String              = dict["month"]                     as? String
+                let dict:           [String: Any]       = try json.jsonDecode()             as? [String: Any]
                 else {
-                    try response.setBody(json: ["success":false, "status": 200, "data": "参数没填完整"])
+                    try response.setBody(json: ["success": false, "status": 200, "data": "请填写请求参数"])
                     response.completed()
                     return
             }
 
+            guard let idcardnumber: String = dict["idcardnumber"] as? String else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "idcardnumber 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let phonenumber: String = dict["phonenumber"] as? String else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "phonenumber 请求参数不正确"])
+                response.completed()
+                return
+            }
+
+            guard let roomnumber: String = dict["roomnumber"]  as? String else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "roomnumber 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let leaseterm: String = dict["leaseterm"] as? String else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "leaseterm 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard  let rent: String = dict["rent"] as? String else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "rent 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard   let deposit: String = dict["deposit"] as? String else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "deposit 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let renttime: Int = dict["renttime"] as? Int else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "renttime 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let internet: Bool = dict["internet"] as? Bool else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "internet 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let trashfee: Bool = dict["trashfee"] as? Bool else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "trashfee 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let water: Int = dict["water"] as? Int else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "water 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let electric: Int = dict["electric"] as? Int else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "electric 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let month: String = dict["month"] as? String else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
+                response.completed()
+                return
+            }
             
             let tenants = Tenants()
             tenants.uuid            = UUID.init().string
@@ -72,14 +131,17 @@ public class WebHandlers {
                 watermeters.id = id as! Int
             }
             
-            try response.setBody(json: ["success":true, "status": 200])
+            try response.setBody(json: ["success": true, "status": 200, "data": "登记信息成功"])
             response.completed()
         } catch {
-            try! response.setBody(json: ["success":false, "status": 200])
+            try! response.setBody(json: ["success": false, "status": 200, "data": error])
             response.completed()
             Log.error(message: "registration : \(error)")
         }
     }
+    
+    
+   
     
     /// 收租信息列表
     ///
@@ -88,6 +150,7 @@ public class WebHandlers {
     ///   - response: 响应
     open static func rentlist(_ request: HTTPRequest, _ response: HTTPResponse) {
         do {
+            
             var offset = 0
             if let page = request.param(name: "page") {
                 offset = Int(page)!
@@ -103,23 +166,12 @@ public class WebHandlers {
             for row in tenants.rows() {
                 tenantsArray.append(row.asDict() as [String : Any])
             }
-            
-            var result = [String: Any]()
-            result.updateValue(200, forKey: "status")
-            result.updateValue(true, forKey: "message")
-            result.updateValue(tenantsArray, forKey: "data")
-            
-            guard let jsonString = try? result.jsonEncodedString() else {
-                try! response.setBody(json: ["success":false, "status": 200])
-                response.completed()
-                return
-            }
-            
-            response.setBody(string: jsonString)
+
+            try response.setBody(json: ["success": true, "status": 200, "data": tenantsArray])
             response.setHeader(.contentType, value: "appliction/json")
             response.completed()
         } catch {
-            try! response.setBody(json: ["success":false, "status": 200])
+            try! response.setBody(json: ["success": false, "status": 200, "data": error])
             response.completed()
             Log.error(message: "rentlist : \(error)")
         }
@@ -135,7 +187,7 @@ public class WebHandlers {
     open static func queryRoomNo(_ request: HTTPRequest, _ response: HTTPResponse) {
         do {
             guard let roomnumber = request.param(name: "roomnumber") else {
-                try response.setBody(json: ["success":false, "status": 200])
+                try response.setBody(json: ["success": false, "status": 200, "data": "roomnumber 参数不正确"])
                 response.completed()
                 return
             }
@@ -148,18 +200,13 @@ public class WebHandlers {
 
             var tenantsArray: [[String: Any]] = []
             for row in tenants.rows() {
-                tenantsArray.append(row.asDict() as [String : Any])
+                tenantsArray.append(row.asDict() as [String: Any])
             }
             
-            var result = [String: Any]()
-            result.updateValue(200, forKey: "status")
-            result.updateValue(true, forKey: "message")
-            result.updateValue(tenantsArray, forKey: "data")
-            
-            try response.setBody(json: result)
+            try response.setBody(json: ["success": true, "status": 200, "data": tenantsArray])
             response.completed()
         } catch {
-            try! response.setBody(json: ["success":false, "status": 200])
+            try! response.setBody(json: ["success": false, "status": 200, "data": error])
             response.completed()
             Log.error(message: "queryRoomNo : \(error)")
         }
@@ -176,15 +223,35 @@ public class WebHandlers {
         do {
             guard
                 let json = request.postBodyString,
-                let dict = try json.jsonDecode() as? [String : Any],
-                let id: Int             = dict["id"]            as? Int,
-                let month: String       = dict["month"]         as? String,
-                let electric: Int       = dict["electric"]      as? Int,
-                let water: Int          = dict["water"]         as? Int
+                let dict = try json.jsonDecode() as? [String: Any]
                 else {
-                    try response.setBody(json: ["success":false, "status": 200])
+                    try response.setBody(json: ["success": false, "status": 200, "data": "请填写请求参数"])
                     response.completed()
                     return
+            }
+            
+            guard let id: Int = dict["id"] as? Int else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "id 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let month: String = dict["month"] as? String else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let water: Int = dict["water"] as? Int else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "water 请求参数不正确"])
+                response.completed()
+                return
+            }
+            
+            guard let electric: Int = dict["electric"] as? Int else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "electric 请求参数不正确"])
+                response.completed()
+                return
             }
 
             let date = Date()
@@ -224,14 +291,14 @@ public class WebHandlers {
             )
             
 
-            try response.setBody(json: ["success":true, "status": 200, "data":
+            try response.setBody(json: ["success": true, "status": 200, "data":
                                                                             ["tenant_updatetime": tenant_updatetime,
                                                                              "electric_id": electric_insert,
                                                                              "water_id": water_insert]])
             response.completed()
             
         } catch {
-            try! response.setBody(json: ["success":false, "status": 200])
+            try! response.setBody(json: ["success": false, "status": 200, "data": error])
             response.completed()
             Log.error(message: "update : \(error)")
         }
