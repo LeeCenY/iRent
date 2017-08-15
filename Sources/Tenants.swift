@@ -21,14 +21,13 @@ class Tenants: MySQLStORM {
     var rent: String                    = ""                    //租金
     var deposit: String                 = ""                    //押金
     var renttime: Int                   = 1                     //收租日期
-    var internet: Int                   = 0                 //网络
-    var trashfee: Int                   = 0                 //垃圾费
+    var internet: Int                   = 0                     //网络
+    var trashfee: Int                   = 0                     //垃圾费
     var registertime: String            = "\(Date())"           //登记时间
     var updatetime: String              = "\(Date())"           //更新时间
-    var _electricmeters                 = [ElectricMeters]()            //电表
-    var _watermeters                    = [Watermeters]()      //水表
-    
-    
+    var _electricmeters                 = [ElectricMeters]()    //电表
+    var _watermeters                    = [WaterMeters]()       //水表
+
     override func table() -> String {
         return "user"
     }
@@ -72,8 +71,8 @@ class Tenants: MySQLStORM {
         return ammeters.rows()
     }
     
-    public func getWatermeters() -> [Watermeters] {
-        let watermeters = Watermeters()
+    public func getWatermeters() -> [WaterMeters] {
+        let watermeters = WaterMeters()
         do {
             try watermeters.select(whereclause: "tenants_id = ?", params: [id], orderby: ["watermeter_month DESC"])
         } catch {

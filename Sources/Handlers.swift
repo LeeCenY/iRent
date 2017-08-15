@@ -2,6 +2,7 @@ import PerfectLib
 import PerfectHTTP
 import MySQLStORM
 import StORM
+import Foundation
 
 ///请求处理
 public class WebHandlers {
@@ -25,8 +26,8 @@ public class WebHandlers {
                 let renttime:       Int                 = dict["renttime"]                  as? Int,
                 let internet:       Bool                = dict["internet"]                  as? Bool,
                 let trashfee:       Bool                = dict["trashfee"]                  as? Bool,
-                let water:          String              = dict["water"]                as? String,
-                let electric:       String              = dict["electric"]                  as? String,
+                let water:          Int                 = dict["water"]                     as? Int,
+                let electric:       Int                 = dict["electric"]                  as? Int,
                 let month:          String              = dict["month"]                     as? String
                 else {
                     try response.setBody(json: ["success":false, "status": 200, "data": "参数没填完整"])
@@ -50,36 +51,33 @@ public class WebHandlers {
             
             let electricMeters = ElectricMeters()
             electricMeters.electricmeter_month = month
-            electricMeters.electricmeter_number = Int(electric)!
+            electricMeters.electricmeter_number = electric
             
-            let watermeters = Watermeters()
+            let watermeters = WaterMeters()
             watermeters.watermeter_month = month
-            watermeters.watermeter_number = Int(water)!
+            watermeters.watermeter_number = water
             
-            do {
-                try tenants.save { id in
-                    tenants.id = id as! Int
-                }
-                
-                electricMeters.tenants_id = tenants.id
-                try electricMeters.save { id in
-                    electricMeters.id = id as! Int
-                }
-                
-                watermeters.tenants_id = tenants.id
-                try watermeters.save { id in
-                    watermeters.id = id as! Int
-                }
-                
-                try response.setBody(json: ["success":true, "status": 200])
-                response.completed()
-            } catch {
-                try response.setBody(json: ["success":false, "status": 200])
-                response.completed()
+    
+            try tenants.save { id in
+                tenants.id = id as! Int
             }
+            
+            electricMeters.tenants_id = tenants.id
+            try electricMeters.save { id in
+                electricMeters.id = id as! Int
+            }
+            
+            watermeters.tenants_id = tenants.id
+            try watermeters.save { id in
+                watermeters.id = id as! Int
+            }
+            
+            try response.setBody(json: ["success":true, "status": 200])
+            response.completed()
         } catch {
             try! response.setBody(json: ["success":false, "status": 200])
             response.completed()
+            Log.error(message: "registration : \(error)")
         }
     }
     
@@ -97,7 +95,7 @@ public class WebHandlers {
             }
 
             let tenants = Tenants()
-            let s = StORMCursor.init(limit: 20, offset: offset)
+            let s = StORMCursor.init(limit: 2, offset: offset)
 
             try tenants.select(columns: [], whereclause: "id", params: [], orderby: [], cursor: s, joins: [], having: [], groupBy: [])
             
@@ -123,6 +121,7 @@ public class WebHandlers {
         } catch {
             try! response.setBody(json: ["success":false, "status": 200])
             response.completed()
+            Log.error(message: "rentlist : \(error)")
         }
         
     }
@@ -162,6 +161,7 @@ public class WebHandlers {
         } catch {
             try! response.setBody(json: ["success":false, "status": 200])
             response.completed()
+            Log.error(message: "queryRoomNo : \(error)")
         }
         
     }
@@ -177,50 +177,63 @@ public class WebHandlers {
             guard
                 let json = request.postBodyString,
                 let dict = try json.jsonDecode() as? [String : Any],
-                let id: String          = dict["id"]            as? String,
+                let id: Int             = dict["id"]            as? Int,
                 let month: String       = dict["month"]         as? String,
-                let electric: String    = dict["electric"]      as? String,
-                let water: String       = dict["water"]         as? String
+                let electric: Int       = dict["electric"]      as? Int,
+                let water: Int          = dict["water"]         as? Int
                 else {
                     try response.setBody(json: ["success":false, "status": 200])
                     response.completed()
                     return
             }
-            
-            let obj = ElectricMeters()
-            obj.tenants_id = Int(id)!
-            obj.electricmeter_month   = month
-            obj.electricmeter_number  = Int(electric)!
-            
-            let obs = Watermeters()
-            obs.tenants_id = Int(id)!
-            obs.watermeter_month    = month
-            obs.watermeter_number   = Int(water)!
 
-            do {
-                let s =  try obj.insert(
-                    cols: ["tenants_id","electricmeter_month","electricmeter_number"],
-                    params: [obj.tenants_id, obj.electricmeter_month, obj.electricmeter_number]
-                )
-                
-                let ss =  try obs.insert(
-                    cols: ["tenants_id","watermeter_month","watermeter_number"],
-                    params: [obs.tenants_id, obs.watermeter_month, obs.watermeter_number]
-                )
-                
-                print(ss)
-                
-                print(s)
-                try response.setBody(json: ["success":true, "status": 200])
-                response.completed()
-                
-            } catch {
-                try! response.setBody(json: ["success":false, "status": 200])
-                response.completed()
-            }
+            let date = Date()
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss +0000"
+            
+            let tenant = Tenants()
+            tenant.id = id
+            tenant.updatetime = "\(dateFormatter.string(from: date))"
+
+            let electricObj = ElectricMeters()
+            electricObj.tenants_id = id
+            electricObj.electricmeter_month   = month
+            electricObj.electricmeter_number  = electric
+            
+            let waterObj = WaterMeters()
+            waterObj.tenants_id = id
+            waterObj.watermeter_month    = month
+            waterObj.watermeter_number   = water
+
+            
+           let tenant_updatetime = try tenant.update(
+                cols: ["updatetime"],
+                params: [tenant.updatetime],
+                idName: "id",
+                idValue: tenant.id
+            )
+  
+            let electric_insert =  try electricObj.insert(
+                cols: ["tenants_id","electricmeter_month","electricmeter_number"],
+                params: [electricObj.tenants_id, electricObj.electricmeter_month, electricObj.electricmeter_number]
+            )
+            
+            let water_insert =  try waterObj.insert(
+                cols: ["tenants_id","watermeter_month","watermeter_number"],
+                params: [waterObj.tenants_id, waterObj.watermeter_month, waterObj.watermeter_number]
+            )
+            
+
+            try response.setBody(json: ["success":true, "status": 200, "data":
+                                                                            ["tenant_updatetime": tenant_updatetime,
+                                                                             "electric_id": electric_insert,
+                                                                             "water_id": water_insert]])
+            response.completed()
+            
         } catch {
             try! response.setBody(json: ["success":false, "status": 200])
             response.completed()
+            Log.error(message: "update : \(error)")
         }
     }
 

@@ -10,7 +10,7 @@ try! tenantsSetup.setup()
 let electricMetersSetup = ElectricMeters()
 try! electricMetersSetup.setup()
 
-let watermeters = Watermeters()
+let watermeters = WaterMeters()
 try! watermeters.setup()
 
 

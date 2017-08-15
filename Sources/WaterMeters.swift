@@ -10,7 +10,7 @@ import Foundation
 import StORM
 import MySQLStORM
 
-class Watermeters: MySQLStORM {
+class WaterMeters: MySQLStORM {
     
     var id                  : Int       = 0
     var tenants_id          : Int       = 0
@@ -28,10 +28,10 @@ class Watermeters: MySQLStORM {
         watermeter_number	= this.data["watermeter_number"]    as? Int         ?? 0
     }
     
-    func rows() -> [Watermeters] {
-        var rows = [Watermeters]()
+    func rows() -> [WaterMeters] {
+        var rows = [WaterMeters]()
         for i in 0..<self.results.rows.count {
-            let row = Watermeters()
+            let row = WaterMeters()
             row.to(self.results.rows[i])
             rows.append(row)
         }
