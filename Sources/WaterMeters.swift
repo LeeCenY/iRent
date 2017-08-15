@@ -22,10 +22,10 @@ class WaterMeters: MySQLStORM {
     }
     
     override func to(_ this: StORMRow) {
-        id                  = Int(this.data["id"]               as? Int32       ?? 0)
-        tenants_id          = Int(this.data["tenants_id"]       as? Int32       ?? 0)
-        watermeter_month    = this.data["watermeter_month"]     as? String      ?? ""
-        watermeter_number	= this.data["watermeter_number"]    as? Int         ?? 0
+        id                  = Int(this.data["id"]                   as? Int32       ?? 0)
+        tenants_id          = Int(this.data["tenants_id"]           as? Int32       ?? 0)
+        watermeter_month    = this.data["watermeter_month"]         as? String      ?? ""
+        watermeter_number	= Int(this.data["watermeter_number"]    as? Int32       ?? 0)
     }
     
     func rows() -> [WaterMeters] {

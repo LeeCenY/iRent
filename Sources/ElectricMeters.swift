@@ -22,10 +22,10 @@ class ElectricMeters: MySQLStORM {
     }
     
     override func to(_ this: StORMRow) {
-        id                      = Int(this.data["id"]                   as? Int32       ?? 0)
-        tenants_id              = Int(this.data["tenants_id"]           as? Int32       ?? 0)
-        electricmeter_month     = this.data["electricmeter_month"]      as? String      ?? ""
-        electricmeter_number	= this.data["electricmeter_number"]     as? Int         ?? 0
+        id                      = Int(this.data["id"]                       as? Int32       ?? 0)
+        tenants_id              = Int(this.data["tenants_id"]               as? Int32       ?? 0)
+        electricmeter_month     = this.data["electricmeter_month"]          as? String      ?? ""
+        electricmeter_number	= Int(this.data["electricmeter_number"]     as? Int32       ?? 0)
     }
     
     func rows() -> [ElectricMeters] {
