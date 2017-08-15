@@ -19,7 +19,7 @@ public func makeWebDemoRoutes() -> Routes {
     // 更新住户信息
     routes.add(method: .post, uri: "update", handler: WebHandlers.update)
     // 查询住户信息
-    routes.add(method: .get, uri: "roomnoquery", handler: WebHandlers.queryRoomNo)
+    routes.add(method: .get, uri: "roomquery", handler: WebHandlers.queryRoomNo)
     
     return routes
 }
