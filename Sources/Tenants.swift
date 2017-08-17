@@ -23,8 +23,8 @@ class Tenants: MySQLStORM {
     var renttime: Int                   = 1                     //收租日期
     var internet: Int                   = 0                     //网络
     var trashfee: Int                   = 0                     //垃圾费
-    var registertime: String            = "\(Date())"           //登记时间
-    var updatetime: String              = "\(Date())"           //更新时间
+    var registertime: String            = Date().string()       //登记时间
+    var updatetime: String              = Date().string()       //更新时间
     var _electricmeters                 = [ElectricMeters]()    //电表
     var _watermeters                    = [WaterMeters]()       //水表
 

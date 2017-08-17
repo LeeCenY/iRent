@@ -13,13 +13,13 @@ public func makeWebDemoRoutes() -> Routes {
     var routes = Routes.init(baseUri: prefix)
 
     // 登记信息
-    routes.add(method: .post, uri: "registration", handler: WebHandlers.registration)
+    routes.add(method: .post, uri: "registration", handler: Registration.tenant)
     // 收租信息列表
-    routes.add(method: .get, uri: "rentlist", handler: WebHandlers.rentlist)
+    routes.add(method: .get, uri: "rentlist", handler: RentList.rentlist)
     // 更新住户信息
-    routes.add(method: .post, uri: "update", handler: WebHandlers.update)
+    routes.add(method: .post, uri: "update", handler: ExpiredRent.update)
     // 查询住户信息
-    routes.add(method: .get, uri: "roomquery", handler: WebHandlers.queryRoomNo)
+    routes.add(method: .get, uri: "roomquery", handler: RoomNo.queryRoomNo)
     
     return routes
 }
