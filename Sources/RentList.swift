@@ -33,7 +33,7 @@ public class RentList {
             }
             
             try response.setBody(json: ["success": true, "status": 200, "data": tenantsArray])
-            response.setHeader(.contentType, value: "appliction/json")
+//            response.setHeader(.contentType, value: "appliction/json")
             response.completed()
         } catch {
             try! response.setBody(json: ["success": false, "status": 200])

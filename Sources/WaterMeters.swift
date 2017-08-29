@@ -15,7 +15,9 @@ class WaterMeters: MySQLStORM {
     var id                  : Int       = 0
     var tenants_id          : Int       = 0
     var watermeter_month    : String    = ""
-    var watermeter_number	: Int       = 0
+    var watermeter_number	: String    = ""
+    var create_time: String             = Date().string()       //创建时间
+    var update_time: String             = Date().string()       //更新时间
     
     override open func table() -> String {
         return "users_watermeters"
@@ -25,7 +27,9 @@ class WaterMeters: MySQLStORM {
         id                  = Int(this.data["id"]                   as? Int32       ?? 0)
         tenants_id          = Int(this.data["tenants_id"]           as? Int32       ?? 0)
         watermeter_month    = this.data["watermeter_month"]         as? String      ?? ""
-        watermeter_number	= Int(this.data["watermeter_number"]    as? Int32       ?? 0)
+        watermeter_number	= this.data["watermeter_number"]        as? String      ?? ""
+        create_time         = this.data["create_time"]              as? String      ?? Date().string()
+        update_time         = this.data["update_time"]              as? String      ?? Date().string()
     }
     
     func rows() -> [WaterMeters] {

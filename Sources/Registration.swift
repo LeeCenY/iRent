@@ -78,13 +78,13 @@ public class Registration {
                 return
             }
             
-            guard let water: Int = dict["water"] as? Int else {
+            guard let water: String = dict["water"] as? String else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "water 请求参数不正确"])
                 response.completed()
                 return
             }
             
-            guard let electric: Int = dict["electric"] as? Int else {
+            guard let electric: String = dict["electric"] as? String else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "electric 请求参数不正确"])
                 response.completed()
                 return

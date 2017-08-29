@@ -23,8 +23,8 @@ class Tenants: MySQLStORM {
     var renttime: Int                   = 1                     //收租日期
     var internet: Int                   = 0                     //网络
     var trashfee: Int                   = 0                     //垃圾费
-    var registertime: String            = Date().string()       //登记时间
-    var updatetime: String              = Date().string()       //更新时间
+    var create_time: String             = Date().string()       //创建时间
+    var update_time: String             = Date().string()       //更新时间
     var _electricmeters                 = [ElectricMeters]()    //电表
     var _watermeters                    = [WaterMeters]()       //水表
 
@@ -44,8 +44,8 @@ class Tenants: MySQLStORM {
         renttime        = this.data["renttime"]         as? Int                         ?? 1
         internet        = this.data["internet"]         as? Int                         ?? 0
         trashfee        = this.data["trashfee"]         as? Int                         ?? 0
-        registertime    = this.data["registertime"]     as? String                      ?? "\(Date())"
-        updatetime      = this.data["updatetime"]       as? String                      ?? "\(Date())"
+        create_time     = this.data["create_time"]      as? String                      ?? Date().string()
+        update_time     = this.data["update_time"]      as? String                      ?? Date().string()
         _electricmeters = getElectricMeters()
         _watermeters    = getWatermeters()
     }
@@ -86,15 +86,17 @@ class Tenants: MySQLStORM {
         var electricmetersArray = [[String: Any]]()
         _electricmeters.forEach { electricmeters in
             var dict = [String: Any]()
-            dict[electricmeters.electricmeter_month] = electricmeters.electricmeter_number
-            electricmetersArray.append(dict);
+            dict["month"] = electricmeters.electricmeter_month
+            dict["number"] = electricmeters.electricmeter_number
+            electricmetersArray.append(dict)
         }
         
         var watermetersArray = [[String: Any]]()
         _watermeters.forEach { watermeters in
             var dict = [String: Any]()
-            dict[watermeters.watermeter_month] = watermeters.watermeter_number
-            watermetersArray.append(dict);
+            dict["month"] = watermeters.watermeter_month
+            dict["number"] = watermeters.watermeter_number
+            watermetersArray.append(dict)
         }
         
         return [
@@ -109,8 +111,8 @@ class Tenants: MySQLStORM {
             "renttime":         self.renttime,
             "internet":         self.internet,
             "trashfee":         self.trashfee,
-            "registertime":     self.registertime,
-            "updatetime":       self.updatetime,
+            "registertime":     self.create_time,
+            "updatetime":       self.update_time,
             "meter":            electricmetersArray,
             "watermeter":       watermetersArray,
         ]
