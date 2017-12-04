@@ -24,15 +24,15 @@ public class RoomNo {
             var queryRoomNo = [String: Any]()
             queryRoomNo.updateValue(roomnumber, forKey: "roomnumber")
             
-            let tenants = Tenants()
-            try tenants.find(queryRoomNo)
+            let roomNumber = RoomNumber()
+            try roomNumber.find(queryRoomNo)
             
-            var tenantsArray: [[String: Any]] = []
-            for row in tenants.rows() {
-                tenantsArray.append(row.asDict() as [String: Any])
+            var roomNumberArray: [[String: Any]] = []
+            for row in roomNumber.rows() {
+                roomNumberArray.append(row.asDetailDict() as [String: Any])
             }
             
-            try response.setBody(json: ["success": true, "status": 200, "data": tenantsArray])
+            try response.setBody(json: ["success": true, "status": 200, "data": roomNumberArray])
             response.completed()
         } catch {
             try! response.setBody(json: ["success": false, "status": 200])

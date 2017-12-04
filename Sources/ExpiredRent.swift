@@ -23,25 +23,25 @@ public class ExpiredRent {
                     response.completed()
                     return
             }
-            
+            //id
             guard let id: Int = dict["id"] as? Int else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "id 请求参数不正确"])
                 response.completed()
                 return
             }
-            
+            //月份
             guard let month: String = dict["month"] as? String else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
                 response.completed()
                 return
             }
-            
+            //水表数
             guard let water: String = dict["water"] as? String else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "water 请求参数不正确"])
                 response.completed()
                 return
             }
-            
+            //电表数
             guard let electric: String = dict["electric"] as? String else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "electric 请求参数不正确"])
                 response.completed()
@@ -50,36 +50,46 @@ public class ExpiredRent {
             
             let waterObj = WaterMeters()
             let electricObj = ElectricMeters()
+            let rentStatusObj = RentStatus()
             
-            try waterObj.select(whereclause: "tenants_id = ? AND watermeter_month = ?",
+            
+            try waterObj.select(whereclause: "roomnumber_id = ? AND watermeter_month = ?",
                                 params: [id, month],
                                 orderby: [])
-            try electricObj.select(whereclause: "tenants_id = ? AND electricmeter_month = ?",
+            try electricObj.select(whereclause: "roomnumber_id = ? AND electricmeter_month = ?",
+                                   params: [id, month],
+                                   orderby: [])
+            try rentStatusObj.select(whereclause: "roomnumber_id = ? AND rent_month = ?",
                                    params: [id, month],
                                    orderby: [])
             
+            
             if waterObj.rows().count != 0,
                 electricObj.rows().count != 0 {
-                try response.setBody(json: ["success": false, "status": 200, "data": "本月已更新"])
+                try response.setBody(json: ["success": false, "status": 200, "data": "已经更新过数据"])
                 response.completed()
                 return
             }
             
-            waterObj.tenants_id = id
-            waterObj.watermeter_month    = month
-            waterObj.watermeter_number   = water
+            waterObj.roomnumber_id      = id
+            waterObj.watermeter_month   = month
+            waterObj.watermeter_number  = water
             
-            electricObj.tenants_id = id
+            electricObj.roomnumber_id = id
             electricObj.electricmeter_month   = month
             electricObj.electricmeter_number  = electric
             
+            rentStatusObj.roomnumber_id = id
+            rentStatusObj.rent_month = month
+            rentStatusObj.rent_number = "0"
+            
             let water_insert =  try waterObj.insert(
-                cols: ["tenants_id",
+                cols: ["roomnumber_id",
                        "watermeter_month",
                        "watermeter_number",
                        "create_time",
                        "update_time"],
-                params: [waterObj.tenants_id,
+                params: [waterObj.roomnumber_id,
                          waterObj.watermeter_month,
                          waterObj.watermeter_number,
                          waterObj.create_time,
@@ -87,22 +97,36 @@ public class ExpiredRent {
             )
             
             let electric_insert =  try electricObj.insert(
-                cols: ["tenants_id",
+                cols: ["roomnumber_id",
                        "electricmeter_month",
                        "electricmeter_number",
                        "create_time",
                        "update_time"],
-                params: [electricObj.tenants_id,
+                params: [electricObj.roomnumber_id,
                          electricObj.electricmeter_month,
                          electricObj.electricmeter_number,
                          electricObj.create_time,
                          electricObj.update_time]
             )
             
+            let rentStatus_insert = try rentStatusObj.insert(
+                cols: ["roomnumber_id",
+                       "rent_month",
+                       "rent_number",
+                       "create_time",
+                       "update_time"],
+                params: [rentStatusObj.roomnumber_id,
+                         rentStatusObj.rent_month,
+                         rentStatusObj.rent_number,
+                         rentStatusObj.create_time,
+                         rentStatusObj.update_time]
+            )
+            
             try response.setBody(json: ["success": true, "status": 200, "data":
                 [
                     "electric_id": electric_insert,
-                    "water_id": water_insert
+                    "water_id": water_insert,
+                    "rentStatus_id": rentStatus_insert
                 ]])
             response.completed()
         } catch {
