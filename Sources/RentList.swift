@@ -28,7 +28,9 @@ public class RentList {
             
             var roomNumberArray: [[String: Any]] = []
             for row in roomNumber.rows() {
-                roomNumberArray.append(row.asHomeDict() as [String : Any])
+                if (row.renttime == Int(Date().day())){
+                  roomNumberArray.append(row.asHomeDict() as [String : Any])
+                }
             }
             
             try response.setBody(json: ["success": true, "status": 200, "data": roomNumberArray])
@@ -68,7 +70,7 @@ public class RentList {
             
             //账单状态
             guard let billingStatus: String = dict["billingstatus"] as? String else {
-                try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
+                try response.setBody(json: ["success": false, "status": 200, "data": "billingstatus 请求参数不正确"])
                 response.completed()
                 return
             }

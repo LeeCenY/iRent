@@ -5,6 +5,12 @@ extension Date {
     public func string() ->String {
         return dateFormatter().string(from: self)
     }
+    
+    public func day() ->String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd"
+        return dateFormatter.string(from: self)
+    }
 }
 
 extension String {
