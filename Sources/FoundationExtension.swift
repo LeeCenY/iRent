@@ -19,10 +19,49 @@ extension String {
     }
 }
 
+
+
+
 func dateFormatter() -> DateFormatter {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss +0000 +z"
     let local = Locale.init(identifier: "zh")
     dateFormatter.locale = local
     return dateFormatter
+}
+
+public func calculateDate(day: Int) -> Date? {
+    let calendar = Calendar.current
+    let currentDate = Date()
+    var dateComponents = DateComponents()
+    dateComponents.day = day
+    return calendar.date(byAdding: dateComponents, to: currentDate)
+}
+
+public func calculateDate(date:Date, month:Int) -> Date? {
+    let calendar = Calendar.current
+    let currentDate = date
+    var dateComponents = DateComponents()
+    dateComponents.month = month
+    return calendar.date(byAdding: dateComponents, to: currentDate)
+}
+
+
+public func calculateDate(month:Int, day: Int) -> Date? {
+    let calendar = Calendar.current
+    let currentDate = Date()
+    var dateComponents = DateComponents()
+    dateComponents.month = month
+    dateComponents.day = day
+    return calendar.date(byAdding: dateComponents, to: currentDate)
+}
+
+public func calculateDate(year: Int, month:Int, day: Int) -> Date? {
+    let calendar = Calendar.current
+    let currentDate = Date()
+    var dateComponents = DateComponents()
+    dateComponents.year = year
+    dateComponents.month = month
+    dateComponents.day = day
+    return calendar.date(byAdding: dateComponents, to: currentDate)
 }

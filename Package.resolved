@@ -11,11 +11,29 @@
         }
       },
       {
+        "package": "JSONConfig",
+        "repositoryURL": "https://github.com/iamjono/JSONConfig.git",
+        "state": {
+          "branch": null,
+          "revision": "0475b831b9af66645384e32c2fb9e58866638224",
+          "version": "3.0.0"
+        }
+      },
+      {
         "package": "MySQLStORM",
-        "repositoryURL": "https://github.com/SwiftORM/MySQL-StORM",
+        "repositoryURL": "https://github.com/SwiftORM/MySQL-StORM.git",
         "state": {
           "branch": null,
           "revision": "34612d8098e20a1a675e1725c2340532b6a79598",
+          "version": "3.0.0"
+        }
+      },
+      {
+        "package": "Perfect-LocalAuthentication-MySQL",
+        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-LocalAuthentication-MySQL.git",
+        "state": {
+          "branch": null,
+          "revision": "c5516fe09d59f62fdc0820bb3e369d0461cd5f38",
           "version": "3.0.0"
         }
       },
@@ -83,6 +101,15 @@
         }
       },
       {
+        "package": "PerfectMustache",
+        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-Mustache.git",
+        "state": {
+          "branch": null,
+          "revision": "60ab0b4d422478d6ddacb18860652e25b52e31fb",
+          "version": "3.0.1"
+        }
+      },
+      {
         "package": "PerfectMySQL",
         "repositoryURL": "https://github.com/PerfectlySoft/Perfect-MySQL.git",
         "state": {
@@ -101,11 +128,47 @@
         }
       },
       {
+        "package": "PerfectRepeater",
+        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-Repeater.git",
+        "state": {
+          "branch": null,
+          "revision": "c7bba679dae88622d24e47a18977843835e9a748",
+          "version": "1.0.1"
+        }
+      },
+      {
         "package": "PerfectRequestLogger",
         "repositoryURL": "https://github.com/PerfectlySoft/Perfect-RequestLogger.git",
         "state": {
           "branch": null,
           "revision": "a2bb96ed5b22246d839513b278086ecb94dfa901",
+          "version": "3.0.0"
+        }
+      },
+      {
+        "package": "PerfectSMTP",
+        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-SMTP.git",
+        "state": {
+          "branch": null,
+          "revision": "baee39b6d834a15f775ec92e2f05fe9728531138",
+          "version": "3.0.1"
+        }
+      },
+      {
+        "package": "PerfectSession",
+        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-Session.git",
+        "state": {
+          "branch": null,
+          "revision": "9ed02633f23868a70a71bb2f55eedc20deba7c25",
+          "version": "3.0.2"
+        }
+      },
+      {
+        "package": "PerfectSessionMySQL",
+        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-Session-MySQL.git",
+        "state": {
+          "branch": null,
+          "revision": "26fd6826448950d8695329c457ad82324dc6ea33",
           "version": "3.0.0"
         }
       },
@@ -143,6 +206,15 @@
           "branch": null,
           "revision": "fe3205f67aa6e8574acc08e9d7cd1fdcaecf49f1",
           "version": "0.2.5"
+        }
+      },
+      {
+        "package": "SwiftString",
+        "repositoryURL": "https://github.com/iamjono/SwiftString.git",
+        "state": {
+          "branch": null,
+          "revision": "9cdd54d6b8713665fe873ce48b144b813dfc79ad",
+          "version": "2.0.3"
         }
       },
       {
