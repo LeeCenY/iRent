@@ -12,12 +12,39 @@ public func ConfigServer() -> HTTPServer {
     return server
 }
 
-public func ConfigMySql() {
-    MySQLConnector.host		= "127.0.0.1"
-    MySQLConnector.username	= "root"
-    MySQLConnector.password	= "123456789"
-    MySQLConnector.database	= "test"
-    MySQLConnector.port		= 3306
-}
+//public func ConfigMySql() {
+//    MySQLConnector.host        = "127.0.0.1"
+//    MySQLConnector.username    = "root"
+//    MySQLConnector.password    = "123456789"
+//    MySQLConnector.database    = "test"
+//    MySQLConnector.port        = 3306
+//}
 
+class DataBaseConnect {
+    static func setup() {
+        MySQLConnector.host        = "127.0.0.1"
+        MySQLConnector.username    = "root"
+        MySQLConnector.password    = "123456789"
+        MySQLConnector.database    = "test"
+        MySQLConnector.port        = 3306
+        
+        self.setTable()
+    }
+    
+    private static func setTable() {
+        setupTable(storm: RoomNumber())
+        setupTable(storm: Tenants())
+        setupTable(storm: ElectricMeters())
+        setupTable(storm: WaterMeters())
+        setupTable(storm: RentStatus())
+    }
+    
+    private static func setupTable(storm: MySQLStORM){
+        do {
+            try storm.setupTable()
+        } catch  {
+            print(("\(storm.table())表初始化失败"))
+        }
+    }
+}
 

@@ -14,7 +14,8 @@ class RentStatus: MySQLStORM {
     var id: Int                     = 0
     var roomnumber_id: Int          = 0
     var rent_month: String          = ""
-    var rent_number: String         = ""
+    var rent_received: String       = ""
+    var leased_time: Int            = 0
     var create_time: String         = Date().string()       //创建时间
     var update_time: String         = Date().string()       //更新时间
     
@@ -26,7 +27,8 @@ class RentStatus: MySQLStORM {
         id                  = Int(this.data["id"]                   as? Int32       ?? 0)
         roomnumber_id       = Int(this.data["roomnumber_id"]        as? Int32       ?? 0)
         rent_month          = this.data["rent_month"]               as? String      ?? ""
-        rent_number         = this.data["rent_number"]              as? String      ?? ""
+        rent_received       = this.data["rent_received"]            as? String      ?? ""
+        leased_time         = this.data["leased_time"]              as? Int         ?? 0
         create_time         = this.data["create_time"]              as? String      ?? Date().string()
         update_time         = this.data["update_time"]              as? String      ?? Date().string()
     }

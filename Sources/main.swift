@@ -2,22 +2,8 @@ import PerfectLib
 import PerfectHTTP
 import PerfectHTTPServer
 
-let _ = ConfigMySql()
-
-let roomNumberSetup = RoomNumber()
-try! roomNumberSetup.setup()
-
-let tenantsSetup = Tenants()
-try! tenantsSetup.setup()
-
-let electricMetersSetup = ElectricMeters()
-try! electricMetersSetup.setup()
-
-let watermetersSetup = WaterMeters()
-try! watermetersSetup.setup()
-
-let rentStatusSetup = RentStatus()
-try! rentStatusSetup.setup()
+//初始化数据库
+DataBaseConnect.setup()
 
 // HTTP服务器
 let server = ConfigServer()

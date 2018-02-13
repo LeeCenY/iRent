@@ -127,7 +127,7 @@ public class Registration {
             
             let rentStatus = RentStatus()
             rentStatus.rent_month = month
-            rentStatus.rent_number = "0"
+            rentStatus.rent_received = "0"
             
             try roomNumber.save { id in
                 roomNumber.id = id as! Int

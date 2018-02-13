@@ -48,6 +48,13 @@ public class ExpiredRent {
                 return
             }
             
+            let roomNumberObj = RoomNumber()
+            try roomNumberObj.get(id)
+            if roomNumberObj.rows().count == 0 {
+                try response.setBody(json: ["success": false, "status": 200, "data": "房间id不存在"])
+                response.completed()
+            }
+            
             let waterObj = WaterMeters()
             let electricObj = ElectricMeters()
             let rentStatusObj = RentStatus()
@@ -81,7 +88,7 @@ public class ExpiredRent {
             
             rentStatusObj.roomnumber_id = id
             rentStatusObj.rent_month = month
-            rentStatusObj.rent_number = "0"
+            rentStatusObj.rent_received = "0"
             
             let water_insert =  try waterObj.insert(
                 cols: ["roomnumber_id",
@@ -112,12 +119,12 @@ public class ExpiredRent {
             let rentStatus_insert = try rentStatusObj.insert(
                 cols: ["roomnumber_id",
                        "rent_month",
-                       "rent_number",
+                       "rent_received",
                        "create_time",
                        "update_time"],
                 params: [rentStatusObj.roomnumber_id,
                          rentStatusObj.rent_month,
-                         rentStatusObj.rent_number,
+                         rentStatusObj.rent_received,
                          rentStatusObj.create_time,
                          rentStatusObj.update_time]
             )

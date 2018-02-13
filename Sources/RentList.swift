@@ -97,8 +97,8 @@ public class RentList {
             }
             
             //账单状态
-            guard let billingStatus: String = dict["rent_received"] as? String else {
-                try response.setBody(json: ["success": false, "status": 200, "data": "billingstatus 请求参数不正确"])
+            guard let billingStatus: String = dict["received"] as? String else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "received 请求参数不正确"])
                 response.completed()
                 return
             }

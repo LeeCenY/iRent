@@ -112,9 +112,26 @@ class RoomNumber: MySQLStORM {
         _rentStatus.forEach { rentStatus in
             var dict = [String: Any]()
             dict["month"] = rentStatus.rent_month
-            dict["number"] = rentStatus.rent_number
+            dict["received"] = rentStatus.rent_received
             rentStatusArray.append(dict)
         }
+        
+        var electricmetersArray = [[String: Any]]()
+        _electricmeters.forEach { electricmeters in
+            var dict = [String: Any]()
+            dict["month"] = electricmeters.electricmeter_month
+            dict["number"] = electricmeters.electricmeter_number
+            electricmetersArray.append(dict)
+        }
+        
+        var watermetersArray = [[String: Any]]()
+        _watermeters.forEach { watermeters in
+            var dict = [String: Any]()
+            dict["month"] = watermeters.watermeter_month
+            dict["number"] = watermeters.watermeter_number
+            watermetersArray.append(dict)
+        }
+        
         
         return [
             "id":               self.id,
@@ -128,7 +145,9 @@ class RoomNumber: MySQLStORM {
             "trashfee":         self.trashfee,
             "registertime":     self.create_time,
             "updatetime":       self.update_time,
-            "rentstatus":       rentStatusArray,
+            "rentstatus":       rentStatusArray.first as Any,
+            "meter":            electricmetersArray.first as Any,
+            "watermeter":       watermetersArray.first as Any,
         ]
     }
     
@@ -164,7 +183,7 @@ class RoomNumber: MySQLStORM {
         _rentStatus.forEach { rentStatus in
             var dict = [String: Any]()
             dict["month"] = rentStatus.rent_month
-            dict["number"] = rentStatus.rent_number
+            dict["received"] = rentStatus.rent_received
             rentStatusArray.append(dict)
         }
         
