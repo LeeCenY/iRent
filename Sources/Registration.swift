@@ -151,7 +151,7 @@ public class Registration {
             }
             
             rentStatus.roomnumber_id = roomNumber.id
-            watermeters.tenants_id = tenants.id
+            rentStatus.tenants_id = tenants.id
             try rentStatus.save { id in
                 rentStatus.id = id as! Int
             }
