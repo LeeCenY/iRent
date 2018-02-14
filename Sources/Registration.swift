@@ -139,16 +139,19 @@ public class Registration {
             }
             
             electricMeters.roomnumber_id = roomNumber.id
+            electricMeters.tenants_id = tenants.id
             try electricMeters.save { id in
                 electricMeters.id = id as! Int
             }
             
             watermeters.roomnumber_id = roomNumber.id
+            watermeters.tenants_id = tenants.id
             try watermeters.save { id in
                 watermeters.id = id as! Int
             }
             
             rentStatus.roomnumber_id = roomNumber.id
+            watermeters.tenants_id = tenants.id
             try rentStatus.save { id in
                 rentStatus.id = id as! Int
             }

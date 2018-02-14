@@ -13,6 +13,7 @@ class RentStatus: MySQLStORM {
     
     var id: Int                     = 0
     var roomnumber_id: Int          = 0
+    var tenants_id: Int             = 0
     var rent_month: String          = ""
     var rent_received: String       = ""
     var leased_time: Int            = 0
@@ -26,6 +27,7 @@ class RentStatus: MySQLStORM {
     override func to(_ this: StORMRow) {
         id                  = Int(this.data["id"]                   as? Int32       ?? 0)
         roomnumber_id       = Int(this.data["roomnumber_id"]        as? Int32       ?? 0)
+        tenants_id          = Int(this.data["tenants_id"]           as? Int32       ?? 0)
         rent_month          = this.data["rent_month"]               as? String      ?? ""
         rent_received       = this.data["rent_received"]            as? String      ?? ""
         leased_time         = this.data["leased_time"]              as? Int         ?? 0
