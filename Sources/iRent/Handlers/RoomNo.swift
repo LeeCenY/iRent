@@ -15,24 +15,24 @@ public class RoomNo {
     ///   - response: 响应
     open static func queryRoomNo(_ request: HTTPRequest, _ response: HTTPResponse) {
         do {
-            guard let roomnumber = request.param(name: "roomnumber") else {
-                try response.setBody(json: ["success": false, "status": 200, "data": "roomnumber 参数不正确"])
+            guard let roomno = request.param(name: "roomno") else {
+                try response.setBody(json: ["success": false, "status": 200, "data": "roomno 参数不正确"])
                 response.completed()
                 return
             }
             
             var queryRoomNo = [String: Any]()
-            queryRoomNo.updateValue(roomnumber, forKey: "roomnumber")
+            queryRoomNo["room_no"] = roomno
             
-            let roomNumber = RoomNumber()
-            try roomNumber.find(queryRoomNo)
+            let room = Room()
+            try room.find(queryRoomNo)
             
-            var roomNumberArray: [[String: Any]] = []
-            for row in roomNumber.rows() {
-                roomNumberArray.append(row.asDetailDict() as [String: Any])
+            var roomArray: [[String: Any]] = []
+            for row in room.rows() {
+                roomArray.append(row.asDetailDict() as [String: Any])
             }
             
-            try response.setBody(json: ["success": true, "status": 200, "data": roomNumberArray])
+            try response.setBody(json: ["success": true, "status": 200, "data": roomArray])
             response.completed()
         } catch {
             try! response.setBody(json: ["success": false, "status": 200])

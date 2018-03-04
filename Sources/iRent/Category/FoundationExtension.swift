@@ -24,7 +24,9 @@ extension String {
 
 func dateFormatter() -> DateFormatter {
     let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+    let local = Locale.init(identifier: "zh")
+    dateFormatter.locale = local
     return dateFormatter
 }
 

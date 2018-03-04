@@ -32,11 +32,9 @@ class DataBaseConnect {
     }
     
     private static func setTable() {
-        setupTable(storm: RoomNumber())
-        setupTable(storm: Tenants())
-        setupTable(storm: ElectricMeters())
-        setupTable(storm: WaterMeters())
-        setupTable(storm: RentStatus())
+        setupTable(storm: Room())
+        setupTable(storm: Tenant())
+        setupTable(storm: Payment())
     }
     
     private static func setupTable(storm: MySQLStORM){
