@@ -4,7 +4,7 @@ import PerfectLib
 import PerfectHTTP
 import MySQLStORM
 import StORM
-
+import SwiftMoment
 
 /// 登记信息
 public class Registration {
@@ -23,24 +23,23 @@ public class Registration {
                     response.completed()
                     return
             }
+
             //姓名
-            guard let name: String = dict["name"] as? String else {
-                try response.setBody(json: ["success": false, "status": 200, "data": "name 请求参数不正确"])
-                response.completed()
-                return
-            }
+            let name = dict["name"] as? String ?? ""
+            //身份证
+            let idcard = dict["idcard"] as? String ?? ""
+            //网费
+            let network = dict["network"] as? Int ?? 0
+            //垃圾费
+            let trashfee = dict["trashfee"] as? Int ?? 0
+            
             //手机号
             guard let phone: String = dict["phone"] as? String else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "phone 请求参数不正确"])
                 response.completed()
                 return
             }
-            //身份证
-            guard let idcard: String = dict["idcard"] as? String else {
-                try response.setBody(json: ["success": false, "status": 200, "data": "idcard 请求参数不正确"])
-                response.completed()
-                return
-            }
+
             //房间号
             guard let roomno: String = dict["roomno"]  as? String else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "roomno 请求参数不正确"])
@@ -48,49 +47,38 @@ public class Registration {
                 return
             }
             //租期
-            guard let leaseterm: String = dict["leaseterm"] as? String else {
+            guard let leaseterm: Int = dict["leaseterm"] as? Int else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "leaseterm 请求参数不正确"])
                 response.completed()
                 return
             }
             //收租时间
-            guard let rentdate: Int = dict["rentdate"] as? Int else {
+            guard let rentdate: String = dict["rentdate"] as? String else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "rentdate 请求参数不正确"])
                 response.completed()
                 return
             }
             //租金
-            guard  let rentmeony: String = dict["rentmeony"] as? String else {
+            guard  let rentmeony: Int = dict["rentmeony"] as? Int else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "rentmeony 请求参数不正确"])
                 response.completed()
                 return
             }
             //押金
-            guard   let deposit: String = dict["deposit"] as? String else {
+            guard   let deposit: Int = dict["deposit"] as? Int else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "deposit 请求参数不正确"])
                 response.completed()
                 return
             }
-            //网费
-            guard let network: Bool = dict["network"] as? Bool else {
-                try response.setBody(json: ["success": false, "status": 200, "data": "network 请求参数不正确"])
-                response.completed()
-                return
-            }
-            //垃圾费
-            guard let trashfee: Bool = dict["trashfee"] as? Bool else {
-                try response.setBody(json: ["success": false, "status": 200, "data": "trashfee 请求参数不正确"])
-                response.completed()
-                return
-            }
+        
             //水表
-            guard let water: String = dict["water"] as? String else {
+            guard let water: Int = dict["water"] as? Int else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "water 请求参数不正确"])
                 response.completed()
                 return
             }
             //电表
-            guard let electricity: String = dict["electricity"] as? String else {
+            guard let electricity: Int = dict["electricity"] as? Int else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "electricity 请求参数不正确"])
                 response.completed()
                 return
@@ -101,16 +89,16 @@ public class Registration {
                 response.completed()
                 return
             }
-            
+
             let room = Room()
             room.uuid           = UUID.init().string
             room.room_no        = roomno
             room.lease_term     = leaseterm
             room.rent_money     = rentmeony
             room.deposit        = deposit
-            room.rent_date      = rentdate
-            room.network        = network ? 1 : 0
-            room.trash_fee      = trashfee ? 1 : 0
+            room.rent_date      = (moment(rentdate)?.date)!
+            room.network        = network
+            room.trash_fee      = trashfee
             
             let tenant = Tenant()
             tenant.name         = name
@@ -121,8 +109,8 @@ public class Registration {
             payment.month       = month
             payment.water       = water
             payment.electricity = electricity
-            payment.network     = network ? 1 : 0
-            payment.trash_fee   = trashfee ? 1 : 0
+            payment.network     = network
+            payment.trash_fee   = trashfee
             payment.state       = 0
     
 

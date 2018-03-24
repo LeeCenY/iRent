@@ -8,6 +8,7 @@
 import Foundation
 import StORM
 import MySQLStORM
+import SwiftMoment
 
 class Room: MySQLStORM {
     
@@ -15,17 +16,17 @@ class Room: MySQLStORM {
     var uuid: String                    = UUID().uuidString
     var state: Int                      = 0                     //是否退房
     var room_no: String                 = ""                    //房间号
-    var rent_money: String              = ""                    //租金
-    var deposit: String                 = ""                    //押金
-    var lease_term: String              = ""                    //租期
-    var rent_date: Int                  = 1                     //收租日期
+    var rent_money: Int                 = 0                     //租金
+    var deposit: Int                    = 0                     //押金
+    var lease_term: Int                 = 0                     //租期
+    var rent_date: Date                 = moment().date         //收租日期
     var network: Int                    = 0                     //网络
     var trash_fee: Int                  = 0                     //垃圾费
-    var create_at: String               = Date().string()       //创建时间
-    var updated_at: String              = Date().string()       //更新时间
-    
-    var tenant                          = [Tenant]()           //租户
-    var payment                         = [Payment]()           //缴费
+    var create_at: Date                 = moment().date         //创建时间
+    var updated_at: Date                = moment().date         //更新时间
+
+//    var tenant                          = [Tenant]()            //租户
+//    var payment                         = [Payment]()           //缴费
     
     override func table() -> String {
         return "Room"
@@ -36,17 +37,18 @@ class Room: MySQLStORM {
         uuid            = this.data["uuid"]             as? String      ?? UUID.init().uuidString
         state           = Int(this.data["state"]        as? Int32       ?? 0)
         room_no         = this.data["room_no"]          as? String      ?? ""
-        rent_money      = this.data["rent_money"]       as? String      ?? ""
-        deposit         = this.data["deposit"]          as? String      ?? ""
-        lease_term      = this.data["lease_term"]       as? String      ?? ""
-        rent_date       = Int(this.data["rent_date"]    as? Int32       ?? 1)
+        rent_money      = Int(this.data["rent_money"]   as? Int32       ?? 0)
+        deposit         = Int(this.data["deposit"]      as? Int32       ?? 0)
+        lease_term      = Int(this.data["lease_term"]   as? Int32       ?? 0)
+        rent_date       = this.data["rent_date"]        as? Date        ?? moment().date
         network         = Int(this.data["trash_fee"]    as? Int32       ?? 0)
         trash_fee       = Int(this.data["trash_fee"]    as? Int32       ?? 0)
-        create_at       = this.data["create_at"]        as? String      ?? Date().string()
-        updated_at      = this.data["updated_at"]       as? String      ?? Date().string()
+        create_at       = this.data["create_at"]        as? Date        ?? moment().date
+        updated_at      = this.data["updated_at"]       as? Date        ?? moment().date
         
-        self.tenant          = getTenant()
-        self.payment         = getPayment()
+//        self.tenant          = getTenant()
+//        self.payment         = getPayment()
+        
     }
     
     func rows() -> [Room] {
@@ -85,14 +87,15 @@ class Room: MySQLStORM {
     //首页页面返回值
     func asHomeDict() -> [String: Any] {
 
-        var paymentArray = [[String: Any]]()
-        self.payment.forEach { payment in
-            var dict = [String: Any]()
-            dict["month"] = payment.month
-            dict["water"] = payment.water
-            dict["electricity"] = payment.electricity
-            paymentArray.append(dict)
-        }
+//        var paymentArray = [[String: Any]]()
+//        self.payment.forEach { payment in
+//            var dict = [String: Any]()
+//            dict["month"] = payment.month
+//            dict["water"] = payment.water
+//            dict["electricity"] = payment.electricity
+//            dict["state"] = payment.state
+//            paymentArray.append(dict)
+//        }
         
         
         return [
@@ -102,35 +105,35 @@ class Room: MySQLStORM {
             "lease_term":       self.lease_term,
             "rent_money":       self.rent_money,
             "deposit":          self.deposit,
-            "rent_date":        self.rent_date,
+            "rent_date":        self.rent_date.string(),
             "network":          self.network,
             "trash_fee":        self.trash_fee,
-            "create_at":        self.create_at,
-            "updated_at":       self.updated_at,
-            "payment":          paymentArray.first as Any,
+            "create_at":        self.create_at.string(),
+            "updated_at":       self.updated_at.string(),
+//            "payment":          paymentArray.first as Any,
         ]
     }
     
     //详情页面返回值
     func asDetailDict() -> [String: Any] {
         
-        var tenantArray = [[String: Any]]()
-        self.tenant.forEach { tenant in
-            var dict = [String: Any]()
-            dict["name"] = tenant.name
-            dict["idcard"] = tenant.idcard
-            dict["phone"] = tenant.phone
-            tenantArray.append(dict)
-        }
+//        var tenantArray = [[String: Any]]()
+//        self.tenant.forEach { tenant in
+//            var dict = [String: Any]()
+//            dict["name"] = tenant.name
+//            dict["idcard"] = tenant.idcard
+//            dict["phone"] = tenant.phone
+//            tenantArray.append(dict)
+//        }
         
-        var paymentArray = [[String: Any]]()
-        self.payment.forEach { payment in
-            var dict = [String: Any]()
-            dict["month"] = payment.month
-            dict["water"] = payment.water
-            dict["electricity"] = payment.electricity
-            paymentArray.append(dict)
-        }
+//        var paymentArray = [[String: Any]]()
+//        self.payment.forEach { payment in
+//            var dict = [String: Any]()
+//            dict["month"] = payment.month
+//            dict["water"] = payment.water
+//            dict["electricity"] = payment.electricity
+//            paymentArray.append(dict)
+//        }
         
         return [
             "id":               self.id,
@@ -144,8 +147,8 @@ class Room: MySQLStORM {
             "trash_fee":        self.trash_fee,
             "create_at":        self.create_at,
             "updated_at":       self.updated_at,
-            "tenant":           tenantArray.first  as Any,
-            "payment":          paymentArray.first as Any,
+//            "tenant":           tenantArray.first  as Any,
+//            "payment":          paymentArray.first as Any,
         ]
     }
     

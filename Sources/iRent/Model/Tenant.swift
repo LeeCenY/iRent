@@ -8,6 +8,7 @@
 import Foundation
 import StORM
 import MySQLStORM
+import SwiftMoment
 
 class Tenant: MySQLStORM {
     
@@ -17,8 +18,8 @@ class Tenant: MySQLStORM {
     var name: String                    = ""                    //姓名
     var idcard: String                  = ""                    //身份证号码
     var phone: String                   = ""                    //手机号
-    var create_at: String               = Date().string()       //创建时间
-    var updated_at: String              = Date().string()       //更新时间
+    var create_at: Date                 = moment().date         //创建时间
+    var updated_at: Date                = moment().date         //更新时间
     
     override func table() -> String {
         return "Tenant"
@@ -31,8 +32,8 @@ class Tenant: MySQLStORM {
         name            = this.data["name"]             as? String      ?? ""
         idcard          = this.data["idcard"]           as? String      ?? ""
         phone           = this.data["phone"]            as? String      ?? ""
-        create_at       = this.data["create_at"]        as? String      ?? Date().string()
-        updated_at      = this.data["updated_at"]       as? String      ?? Date().string()
+        create_at       = this.data["create_at"]        as? Date        ?? moment().date
+        updated_at      = this.data["updated_at"]       as? Date        ?? moment().date
     }
     
     func rows() -> [Tenant] {

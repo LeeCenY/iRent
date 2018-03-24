@@ -4,6 +4,7 @@ import PerfectLib
 import PerfectHTTP
 import MySQLStORM
 import StORM
+import SwiftMoment
 
 /// 收租信息列表
 public class RentList {
@@ -41,17 +42,18 @@ public class RentList {
             
             
             if listType == "expire" {
-                for row in room.rows() {
-                    
-                    let date = row.tenant[0].create_at.date()!
-                    let leasedTime = row.tenant.count - 1
-                    let dateCompareRange = isDateCompareRange(date: date, leasedTime: leasedTime, rangeDay: 7)
-                    
-                    if (!dateCompareRange) {
-                        break
-                    }
-                    roomArray.append(row.asHomeDict() as [String : Any])
-                }
+//                for row in room.rows() {
+//
+//                    let date = row.create_at
+//                    row.
+//                    let leasedTime = row.tenant.count - 1
+//                    let dateCompareRange = isDateCompareRange(date: date, leasedTime: leasedTime, rangeDay: 7)
+//
+//                    if (!dateCompareRange) {
+//                        break
+//                    }
+//                    roomArray.append(row.asHomeDict() as [String : Any])
+//                }
             }else {
                 for row in room.rows() {
                     roomArray.append(row.asHomeDict() as [String : Any])
@@ -59,7 +61,7 @@ public class RentList {
             }
 
             try response.setBody(json: ["success": true, "status": 200, "data": roomArray])
-//            response.setHeader(.contentType, value: "appliction/json")
+            response.setHeader(.contentType, value: "appliction/json")
             response.completed()
         } catch {
             try! response.setBody(json: ["success": false, "status": 200])
@@ -94,19 +96,20 @@ public class RentList {
             }
             
             //账单状态
-            guard let state: String = dict["state"] as? String else {
+            guard let state: Bool = dict["state"] as? Bool else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "state 请求参数不正确"])
                 response.completed()
                 return
             }
 
+            let stateInt = state ? 1 : 0
             let payment = Payment()
-            try payment.update(cols: ["month","state","updated_at"],
-                                     params: [month, state, Date().string()],
-                                     idName: "room_id",
-                                     idValue: id)
+            let updateState = try payment.update(cols: ["month","state","updated_at"],
+                                                 params: [month, stateInt, Date().string()],
+                                                 idName: "room_id",
+                                                 idValue: id)
 
-            try response.setBody(json: ["success": true, "status": 200, "data": "已收账单"])
+            try response.setBody(json: ["success": true, "status": 200, "data": updateState])
             response.completed()
         } catch {
             try! response.setBody(json: ["success": false, "status": 200])
@@ -131,19 +134,25 @@ public class RentList {
                 return
             }
 
-            var thisMonth = [String: Any]()
-            thisMonth["room_id"] = room_id
-            thisMonth["month"] = month
-            
             let payment = Payment()
-            try payment.find(thisMonth)
+            let month2 = moment(month.toDate("yyyyMM")!).subtract(1, TimeUnit.Months).format("yyyyMM")
             
-            var paymentArray: [[String: Any]] = []
-            for row in payment.rows() {
-                paymentArray.append(row.asDetailDict() as [String: Any])
+            try payment.select(whereclause: "room_id = ? and month between ? and ? ", params: [room_id, month2, month], orderby: ["month DESC"])
+            
+            var paymentDict = [String: Any]()
+            for (index, row) in payment.rows().enumerated() {
+                if (index == 0) {
+                    paymentDict = row.asDetailDict()
+                    continue
+                }
+                if (index == 1) {
+                    paymentDict["lastWater"] = row.water
+                    paymentDict["lastElectricity"] = row.electricity
+                    break
+                }
             }
-
-            try response.setBody(json: ["success": true, "status": 200, "data": paymentArray])
+            
+            try response.setBody(json: ["success": true, "status": 200, "data": paymentDict])
             response.completed()
             
         } catch {
@@ -163,12 +172,14 @@ public class RentList {
                 response.completed()
                 return
             }
-
+            
+            let stateInt = 1
+            
             let room = Room()
-            try room.update(cols: ["state"], params: [1], idName: "id", idValue: room_id)
+            try room.update(cols: ["state"], params: [stateInt], idName: "id", idValue: room_id)
             
             let tenant = Tenant()
-            try tenant.update(cols: ["state"], params: [1], idName: "room_id", idValue: room_id)
+            try tenant.update(cols: ["state"], params: [stateInt], idName: "room_id", idValue: room_id)
             
             try response.setBody(json: ["success": true, "status": 200, "data": "退房成功"])
             response.completed()
@@ -179,10 +190,6 @@ public class RentList {
         }
         
     }
-    
-    
-    
-    
 }
 
 enum ListType {

@@ -4,11 +4,12 @@ import PerfectLib
 import PerfectHTTP
 import MySQLStORM
 import StORM
+import SwiftMoment
 
 
-/// 到期收租
+/// 抄表
 public class ExpiredRent {
-    /// 到期收租
+    /// 抄表
     ///
     /// - Parameters:
     ///   - request: 请求
@@ -36,13 +37,13 @@ public class ExpiredRent {
                 return
             }
             //水表数
-            guard let water: String = dict["water"] as? String else {
+            guard let water: Int = dict["water"] as? Int else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "water 请求参数不正确"])
                 response.completed()
                 return
             }
             //电表数
-            guard let electricity: String = dict["electricity"] as? String else {
+            guard let electricity: Int = dict["electricity"] as? Int else {
                 try response.setBody(json: ["success": false, "status": 200, "data": "electricity 请求参数不正确"])
                 response.completed()
                 return
@@ -53,6 +54,7 @@ public class ExpiredRent {
             if room.rows().count == 0 {
                 try response.setBody(json: ["success": false, "status": 200, "data": "房间id不存在"])
                 response.completed()
+                return
             }
             
             let payment = Payment()
@@ -66,6 +68,8 @@ public class ExpiredRent {
                 response.completed()
                 return
             }
+
+            
             
             payment.room_id         = id
             payment.month           = month
