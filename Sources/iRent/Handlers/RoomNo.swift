@@ -7,7 +7,7 @@ import StORM
 
 
 /// 查询房间住户信息
-public class RoomNo {
+public class RoomNo: BaseHandler {
     /// 查询房间住户信息
     ///
     /// - Parameters:
@@ -18,8 +18,7 @@ public class RoomNo {
             request, response in
             do {
                 guard let roomno = request.param(name: "roomno") else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "roomno 参数不正确"])
-                    response.completed()
+                    error(request, response, error: "roomno 参数不正确")
                     return
                 }
                 
@@ -34,8 +33,7 @@ public class RoomNo {
                 try response.setBody(json: ["success": true, "status": 200, "data": roomArray])
                 response.completed()
             } catch {
-                try! response.setBody(json: ["success": false, "status": 200])
-                response.completed()
+                serverErrorHandler(request, response)
                 Log.error(message: "queryRoomNo : \(error)")
             }
         }

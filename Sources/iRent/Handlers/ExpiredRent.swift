@@ -8,7 +8,7 @@ import SwiftMoment
 
 
 /// 抄表
-public class ExpiredRent {
+public class ExpiredRent: BaseHandler {
     /// 抄表
     ///
     /// - Parameters:
@@ -22,40 +22,34 @@ public class ExpiredRent {
                     let json = request.postBodyString,
                     let dict = try json.jsonDecode() as? [String: Any]
                     else {
-                        try response.setBody(json: ["success": false, "status": 200, "data": "请填写请求参数"])
-                        response.completed()
+                        error(request, response, error: "请填写请求参数")
                         return
                 }
                 //id
                 guard let id: Int = dict["id"] as? Int else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "id 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "id 请求参数不正确")
                     return
                 }
                 //月份
                 guard let month: String = dict["month"] as? String, moment(month, dateFormat: DateFormat.month) != nil else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "月份 month 请求参数不正确")
                     return
                 }
                 //水表数
                 guard let water: Int = dict["water"] as? Int else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "water 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "水表数 water 请求参数不正确")
                     return
                 }
                 //电表数
                 guard let electricity: Int = dict["electricity"] as? Int else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "electricity 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "电表数 electricity 请求参数不正确")
                     return
                 }
                 
                 let room = Room()
                 try room.get(id)
                 if room.rows().count == 0 {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "房间id不存在"])
-                    response.completed()
+                    error(request, response, error: "房间id不存在")
                     return
                 }
                 
@@ -66,8 +60,7 @@ public class ExpiredRent {
                 
                 if payment.rows().count != 0,
                     payment.rows().count != 0 {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "已经更新过数据"])
-                    response.completed()
+                    error(request, response, error: "已经更新过数据")
                     return
                 }
                 
@@ -102,8 +95,7 @@ public class ExpiredRent {
                     ]])
                 response.completed()
             } catch {
-                try! response.setBody(json: ["success": false, "status": 200])
-                response.completed()
+                serverErrorHandler(request, response)
                 Log.error(message: "update : \(error)")
             }
         }

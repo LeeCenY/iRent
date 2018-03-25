@@ -7,7 +7,7 @@ import StORM
 import SwiftMoment
 
 /// 收租信息列表
-public class RentList {
+public class RentList: BaseHandler {
     /// 收租信息列表
     ///
     /// - Parameters:
@@ -66,8 +66,7 @@ public class RentList {
                 response.setHeader(.contentType, value: "appliction/json")
                 response.completed()
             } catch {
-                try! response.setBody(json: ["success": false, "status": 200])
-                response.completed()
+                serverErrorHandler(request, response)
                 Log.error(message: "rentlist : \(error)")
             }
         }
@@ -82,27 +81,23 @@ public class RentList {
                     let json = request.postBodyString,
                     let dict = try json.jsonDecode() as? [String: Any]
                     else {
-                        try response.setBody(json: ["success": false, "status": 200, "data": "请填写请求参数"])
-                        response.completed()
+                        error(request, response, error: "请填写请求参数")
                         return
                 }
                 //id
                 guard let id: Int = dict["id"] as? Int else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "id 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "id 请求参数不正确")
                     return
                 }
                 //月份
                 guard let month: String = dict["month"] as? String, moment(month, dateFormat: DateFormat.month) != nil else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "月份 month 请求参数不正确")
                     return
                 }
                 
                 //账单状态
                 guard let state: Bool = dict["state"] as? Bool else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "state 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "账单状态 state 请求参数不正确")
                     return
                 }
                 
@@ -116,8 +111,7 @@ public class RentList {
                 try response.setBody(json: ["success": true, "status": 200, "data": updateState])
                 response.completed()
             } catch {
-                try! response.setBody(json: ["success": false, "status": 200])
-                response.completed()
+                serverErrorHandler(request, response)
                 Log.error(message: "update : \(error)")
             }
         }
@@ -130,14 +124,12 @@ public class RentList {
             do {
                 
                 guard let room_id = request.param(name: "room_id") else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "room_id 参数不正确"])
-                    response.completed()
+                    error(request, response, error: "room_id 参数不正确")
                     return
                 }
                 
                 guard let month = request.param(name: "month"), moment(month, dateFormat: DateFormat.month) != nil else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "month 参数不正确"])
-                    response.completed()
+                    error(request, response, error: "月份 month 参数不正确")
                     return
                 }
                 
@@ -163,8 +155,7 @@ public class RentList {
                 response.completed()
                 
             } catch {
-                try! response.setBody(json: ["success": false, "status": 200])
-                response.completed()
+                serverErrorHandler(request, response)
                 Log.error(message: "details : \(error)")
             }
         }
@@ -177,8 +168,7 @@ public class RentList {
             do {
                 
                 guard let room_id = request.param(name: "room_id") else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "room_id 参数不正确"])
-                    response.completed()
+                    error(request, response, error: "room_id 参数不正确")
                     return
                 }
                 
@@ -193,8 +183,7 @@ public class RentList {
                 try response.setBody(json: ["success": true, "status": 200, "data": "退房成功"])
                 response.completed()
             } catch {
-                try! response.setBody(json: ["success": false, "status": 200])
-                response.completed()
+                serverErrorHandler(request, response)
                 Log.error(message: "details : \(error)")
             }
         }

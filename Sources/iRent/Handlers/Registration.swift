@@ -7,7 +7,7 @@ import StORM
 import SwiftMoment
 
 /// 登记信息
-public class Registration {
+public class Registration: BaseHandler  {
     /// 登记信息
     ///
     /// - Parameters:
@@ -21,8 +21,7 @@ public class Registration {
                     let json:           String              = request.postBodyString,
                     let dict:           [String: Any]       = try json.jsonDecode()             as? [String: Any]
                     else {
-                        try response.setBody(json: ["success": false, "status": 200, "data": "请填写请求参数"])
-                        response.completed()
+                        error(request, response, error: "请填写请求参数")
                         return
                 }
                 
@@ -37,58 +36,49 @@ public class Registration {
                 
                 //手机号
                 guard let phone: String = dict["phone"] as? String, phone.count == 11 else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "phone 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "手机号码 phone 请求参数不正确")
                     return
                 }
                 
                 //房间号
                 guard let roomno: String = dict["roomno"]  as? String else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "roomno 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "房间号 roomno 请求参数不正确")
                     return
                 }
                 //租期
                 guard let leaseterm: Int = dict["leaseterm"] as? Int else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "leaseterm 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "租期 leaseterm 请求参数不正确")
                     return
                 }
                 //收租时间
                 guard let rentdate: String = dict["rentdate"] as? String, (moment(rentdate)?.date) != nil else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "rentdate 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "收租时间 rentdate 请求参数不正确")
                     return
                 }
                 //租金
                 guard  let rentmeony: Int = dict["rentmeony"] as? Int  else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "rentmeony 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "租金 rentmeony 请求参数不正确")
                     return
                 }
                 //押金
                 guard   let deposit: Int = dict["deposit"] as? Int else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "deposit 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "押金 deposit 请求参数不正确")
                     return
                 }
                 
                 //水表
                 guard let water: Int = dict["water"] as? Int else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "water 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "水表 water 请求参数不正确")
                     return
                 }
                 //电表
                 guard let electricity: Int = dict["electricity"] as? Int else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "electricity 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "电表 electricity 请求参数不正确")
                     return
                 }
                 //月份
                 guard let month: String = dict["month"] as? String, moment(month, dateFormat: DateFormat.month) != nil else {
-                    try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
-                    response.completed()
+                    error(request, response, error: "月份 month 请求参数不正确")
                     return
                 }
                 
@@ -136,8 +126,7 @@ public class Registration {
                 try response.setBody(json: ["success": true, "status": 200, "data": "登记信息成功"])
                 response.completed()
             } catch {
-                try! response.setBody(json: ["success": false, "status": 200])
-                response.completed()
+                serverErrorHandler(request, response)
                 Log.error(message: "registration : \(error)")
             }
         }
