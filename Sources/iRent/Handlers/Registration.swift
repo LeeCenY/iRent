@@ -36,7 +36,7 @@ public class Registration {
                 let trashfee = dict["trashfee"] as? Int ?? 0
                 
                 //手机号
-                guard let phone: String = dict["phone"] as? String else {
+                guard let phone: String = dict["phone"] as? String, phone.count == 11 else {
                     try response.setBody(json: ["success": false, "status": 200, "data": "phone 请求参数不正确"])
                     response.completed()
                     return
@@ -55,13 +55,13 @@ public class Registration {
                     return
                 }
                 //收租时间
-                guard let rentdate: String = dict["rentdate"] as? String else {
+                guard let rentdate: String = dict["rentdate"] as? String, (moment(rentdate)?.date) != nil else {
                     try response.setBody(json: ["success": false, "status": 200, "data": "rentdate 请求参数不正确"])
                     response.completed()
                     return
                 }
                 //租金
-                guard  let rentmeony: Int = dict["rentmeony"] as? Int else {
+                guard  let rentmeony: Int = dict["rentmeony"] as? Int  else {
                     try response.setBody(json: ["success": false, "status": 200, "data": "rentmeony 请求参数不正确"])
                     response.completed()
                     return
@@ -86,11 +86,13 @@ public class Registration {
                     return
                 }
                 //月份
-                guard let month: String = dict["month"] as? String else {
+                guard let month: String = dict["month"] as? String, moment(month, dateFormat: DateFormat.month) != nil else {
                     try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
                     response.completed()
                     return
                 }
+                
+                
                 
                 let room = Room()
                 room.uuid           = UUID.init().string

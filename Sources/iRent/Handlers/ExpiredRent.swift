@@ -33,7 +33,7 @@ public class ExpiredRent {
                     return
                 }
                 //月份
-                guard let month: String = dict["month"] as? String else {
+                guard let month: String = dict["month"] as? String, moment(month, dateFormat: DateFormat.month) != nil else {
                     try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
                     response.completed()
                     return

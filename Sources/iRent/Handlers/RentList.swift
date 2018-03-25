@@ -93,7 +93,7 @@ public class RentList {
                     return
                 }
                 //月份
-                guard let month: String = dict["month"] as? String else {
+                guard let month: String = dict["month"] as? String, moment(month, dateFormat: DateFormat.month) != nil else {
                     try response.setBody(json: ["success": false, "status": 200, "data": "month 请求参数不正确"])
                     response.completed()
                     return
@@ -135,14 +135,14 @@ public class RentList {
                     return
                 }
                 
-                guard let month = request.param(name: "month") else {
+                guard let month = request.param(name: "month"), moment(month, dateFormat: DateFormat.month) != nil else {
                     try response.setBody(json: ["success": false, "status": 200, "data": "month 参数不正确"])
                     response.completed()
                     return
                 }
                 
                 let payment = Payment()
-                let month2 = moment(month.toDate("yyyyMM")!).subtract(1, TimeUnit.Months).format("yyyyMM")
+                let month2 = moment(month.toDate(DateFormat.month)!).subtract(1, TimeUnit.Months).format(DateFormat.month)
                 
                 try payment.select(whereclause: "room_id = ? and month between ? and ? ", params: [room_id, month2, month], orderby: ["month DESC"])
                 

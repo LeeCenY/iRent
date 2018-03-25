@@ -16,7 +16,7 @@ class Payment: MySQLStORM {
     var room_id: Int                    = 0                     //房间id
     var state: Int                      = 0                     //是否已经缴费
     var payee: String                   = ""                    //收款人
-    var month: String                   = moment().format("yyyyMM")                  //月份
+    var month: String                   = moment().format(DateFormat.month)                  //月份
     var money: Double                   = 0.00                    //总数
     var rent_money: Int                 = 0                     //租金
     var water: Int                      = 0                     //水表数
@@ -37,7 +37,7 @@ class Payment: MySQLStORM {
         room_id             = Int(this.data["room_id"]              as? Int32       ?? 0)
         state               = Int(this.data["state"]                as? Int32       ?? 0)
         payee               = this.data["payee"]                    as? String      ?? ""
-        month               = this.data["month"]                    as? String      ?? moment().format("yyyyMM")
+        month               = this.data["month"]                    as? String      ?? moment().format(DateFormat.month)
         money               = this.data["money"]                    as? Double      ?? 0.00
         rent_money          = Int(this.data["rent_money"]           as? Int32       ?? 0)
         water               = Int(this.data["water"]                as? Int32       ?? 0)

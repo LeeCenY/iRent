@@ -1,6 +1,11 @@
 
 import Foundation
 
+struct DateFormat {
+    static let month = "yyyyMM"
+    static let Date = "yyyy-MM-dd HH:mm:ss ZZZZ"
+}
+
 extension Date {
     public func string() ->String {
         return dateFormatter().string(from: self)
