@@ -1,9 +1,15 @@
 import PerfectLib
 import PerfectHTTP
 import PerfectHTTPServer
+import PerfectMySQL
+import PerfectCRUD
 
 //初始化数据库
-DataBaseConnect.setup()
+let db = Database(configuration: try MySQLDatabaseConfiguration(database: "test", host: "localhost", port: 3306, username: "root", password: "123456789"))
+try db.create(Room.self, policy: .reconcileTable)
+try db.create(Tenant.self, policy: .reconcileTable)
+try db.create(Payment.self, policy: .reconcileTable)
+
 
 //API版本
 let api = "api"

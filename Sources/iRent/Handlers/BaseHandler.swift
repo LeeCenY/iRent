@@ -5,6 +5,6 @@
 //  Created by nil on 2018/3/25.
 //
 
-import UIKit
+import Foundation
 
 public class BaseHandler {}

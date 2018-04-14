@@ -2,9 +2,7 @@
 import Foundation
 import PerfectLib
 import PerfectHTTP
-import MySQLStORM
-import StORM
-
+import PerfectCRUD
 
 /// 查询房间住户信息
 public class RoomNo: BaseHandler {
@@ -21,15 +19,46 @@ public class RoomNo: BaseHandler {
                     error(request, response, error: "roomno 参数不正确")
                     return
                 }
-                
-                let room = Room()
-                try room.find(["room_no": roomno])
-                
+
+                let roomTable = db.table(Room.self)
+                let qurey = try roomTable
+                    .where(\Room.room_no == roomno && \Room.state == true)
+                    .select()
+
                 var roomArray: [[String: Any]] = []
-                for row in room.rows() {
-                    roomArray.append(row.asDetailDict() as [String: Any])
+
+                for row in qurey {
+
+                    if  row.id != nil {
+                        var roomdict: [String: Any] = [:]
+                        //                    roomdict["id"] = row.id
+                        roomdict["state"] = row.state
+                        roomdict["room_no"] = row.room_no
+                        roomdict["rent_money"] = row.rent_money
+                        roomdict["deposit"] = row.deposit
+                        roomdict["lease_term"] = row.lease_term
+                        roomdict["rent_date"] = row.rent_date
+                        roomdict["network"] = row.network
+                        roomdict["trash_fee"] = row.trash_fee
+                        //                    roomdict["create_at"] = row.create_at
+                        //                    roomdict["updated_at"] = row.updated_at
+                        roomArray.append(roomdict)
+                    }
+                    
+
+//                    "id":               row.id,
+//                    "state":            self.state,
+//                    "room_no":          self.room_no,
+//                    "rent_money":       self.rent_money,
+//                    "deposit":          self.deposit,
+//                    "lease_term":       self.lease_term,
+//                    "rent_date":        self.rent_date,
+//                    "network":          self.network,
+//                    "trash_fee":        self.trash_fee,
+//                    "create_at":        self.create_at,
+//                    "updated_at":       self.updated_at
                 }
-                
+
                 try response.setBody(json: ["success": true, "status": 200, "data": roomArray])
                 response.completed()
             } catch {
@@ -39,5 +68,4 @@ public class RoomNo: BaseHandler {
         }
     }
 }
-
 
