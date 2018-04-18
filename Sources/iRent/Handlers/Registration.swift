@@ -83,12 +83,13 @@ public class Registration: BaseHandler  {
                     .where(\Room.room_no == roomno && \Room.state == false)
                     .select()
                 for row in query {
-                    try response.setBody(json: ["success": true, "status": 200, "data": "\(row.room_no) 房间号已存在"])
+                    try response.setBody(json: ["success": true, "status": 200, "data": "\(String(describing: row.room_no)) 房间号已存在"])
                     response.completed()
+                    return
                 }
                 
-                let room = Room.init(id: UUID.init(), state: false, room_no: roomno, rent_money: rentmeony, deposit: deposit, lease_term: leaseterm, rent_date: rentdate, network: network, trash_fee: trashfee, create_at: Date(), updated_at: Date())
-                
+                let room = Room.init(id: UUID.init(), state: false, room_no: roomno, rent_money: rentmeony, deposit: deposit, lease_term: leaseterm, rent_date: rentdate, network: network, trash_fee: trashfee, create_at: Date(), updated_at: Date(), payment: nil, tenant: nil)
+
                 let tenant = Tenant.init(id: UUID.init(), room_id: room.id, state: false, name: name, idcard: idcard, phone: phone, create_at: Date(), updated_at: Date())
 
                 let payment = Payment.init(id: UUID.init(), room_id: room.id, state: false, payee: "", rent_date: rentdate, money: 0, rent_money: rentmeony, water: water, electricity: electricity, network: network, trash_fee: trashfee, arrears: 0, remark: "", create_at: Date(), updated_at: Date())

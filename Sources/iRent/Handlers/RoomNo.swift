@@ -23,15 +23,15 @@ public class RoomNo: BaseHandler {
                 let roomTable = db.table(Room.self)
                 let qurey = try roomTable
                     .where(\Room.room_no == roomno && \Room.state == true)
-                    .select()
+                    .select().map {$0}
 
                 var roomArray: [[String: Any]] = []
 
                 for row in qurey {
 
-                    if  row.id != nil {
+             
                         var roomdict: [String: Any] = [:]
-                        //                    roomdict["id"] = row.id
+                        roomdict["id"] = row.id
                         roomdict["state"] = row.state
                         roomdict["room_no"] = row.room_no
                         roomdict["rent_money"] = row.rent_money
@@ -43,7 +43,7 @@ public class RoomNo: BaseHandler {
                         //                    roomdict["create_at"] = row.create_at
                         //                    roomdict["updated_at"] = row.updated_at
                         roomArray.append(roomdict)
-                    }
+                    
                     
 
 //                    "id":               row.id,

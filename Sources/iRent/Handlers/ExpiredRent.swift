@@ -54,18 +54,21 @@ public class ExpiredRent: BaseHandler {
                     return
                 }
 
+                //TODO 还需要判断时间
+                
                 let paymentTable = db.table(Payment.self)
                 
-                var payment = Payment()
-                payment.rent_date       = rentDate
-                payment.water           = water
-                payment.electricity     = electricity
-                payment.state           = false
-                payment.updated_at      = Date()
+                let payment = Payment.init(id: UUID(), room_id: UUID(), state: false, payee: "", rent_date: rentDate, money: 100, rent_money: 0, water: water, electricity: electricity, network: 999, trash_fee:999, arrears: 999, remark: "", create_at: Date(), updated_at: Date())
+//                payment.rent_date       = rentDate
+//                payment.water           = water
+//                payment.electricity     = electricity
+//                payment.state           = false
+//                payment.updated_at      = Date()
                 
                 try paymentTable
                     .where(\Payment.room_id == id && \Payment.rent_date == rentDate)
                     .update(payment, setKeys: \.rent_date, \.water, \.electricity, \.state, \.updated_at)
+                
 
                 try response.setBody(json: ["success": true, "status": 200, "data": "更新成功"])
                 response.completed()

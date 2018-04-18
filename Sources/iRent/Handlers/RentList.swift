@@ -6,77 +6,64 @@ import PerfectCRUD
 
 /// 收租信息列表
 public class RentList: BaseHandler {
-//    /// 收租信息列表
-//    ///
-//    /// - Parameters:
-//    ///   - request: 请求
-//    ///   - response: 响应
-//    open static func rentlist() -> RequestHandler {
-//        return {
-//            request, response in
-//            do {
-//
-//                var offset = 0
-//                var limit = 20
-//                if let page = request.param(name: "page") {
-//                    offset = Int(page)!
-//                    offset = (offset - 1) * 2
-//                }
-//
-//                var listType = "all"
-//                if let type = request.param(name: "type") {
-//                    listType = type
-//                }
-//
-//                if listType == "expire" {
-//                    offset = 0
-//                    limit = 100
-//                }
-//
-//                let room = Room()
-////                let cursor = StORMCursor.init(limit: limit, offset: offset)
-//
-////                let join = StORMDataSourceJoin.init(table: "Payment", onCondition: "Room.id = Payment.room_id", direction: StORMJoinType.INNER)
-////
-////                let columns = "room.id, room.uuid, room.state, room.room_no,room.rent_money,room.deposit,room.lease_term,room.rent_date,room.network,room.trash_fee,room.create_at,room.updated_at,payment.water, payment.electricity"
-////
-////                //从数据库获取数据
-////                try room.select(columns: [columns], whereclause: "", params: [], orderby: [], cursor: cursor, joins: [join], having: [], groupBy: [])
-//
-//                var roomArray: [[String: Any]] = []
-//
-//                var result = [StORMRow]()
-//                if listType == "expire" {
-////                    result = try room.sqlRows(
-////                        "SELECT Room.id, Room.uuid, Room.state, Room.room_no, Room.rent_money, Room.deposit, Room.lease_term, Room.rent_date, Room.network, Room.trash_fee, Room.create_at, Room.updated_at, Payment.water, Payment.electricity, Payment.state AS payment_state FROM Room INNER JOIN Payment ON Room.id = Payment.room_id WHERE Payment.state = ? AND Room.rent_date >= ? AND Room.rent_date < ? ORDER BY id DESC LIMIT ? OFFSET ?",
-////                        params: ["\(0)", "2018-04-01 12:29:58 +0000", "2018-04-10 12:29:58 +0000", "\(limit)", "\(offset)"])
-//
-//
-//                   result = try room.sqlRows(
-//                    "SELECT Payment.room_id, Payment.water, Payment.electricity, Payment.state AS payment_state, Room.id, Room.uuid, Room.state, Room.room_no, Room.rent_money, Room.deposit, Room.lease_term, Room.rent_date, Room.network, Room.trash_fee, Room.create_at, Room.updated_at FROM Payment INNER JOIN Room ON Payment.room_id = Room.id WHERE Payment.state = 0 OR Payment.create_at >= ? AND Payment.create_at < ?",
-//                        params: ["2018-04-01 12:29:58 +0000", "2018-04-10 12:29:58 +0000"])
-//
-//                }else {
-//
-//                    result = try room.sqlRows(
-//                        "SELECT Room.id, Room.uuid, Room.state, Room.room_no, Room.rent_money, Room.deposit, Room.lease_term, Room.rent_date, Room.network, Room.trash_fee, Room.create_at, Room.updated_at, Payment.water, Payment.electricity, Payment.state AS payment_state FROM Room INNER JOIN Payment ON Room.id = Payment.room_id ORDER BY id DESC LIMIT ? OFFSET ?",
-//                        params: ["\(limit)", "\(offset)"])
-//                }
-//
-//                for row in result {
-//                    roomArray.append(row.data)
-//                }
-//
-//                try response.setBody(json: ["success": true, "status": 200, "data": roomArray])
-//                response.setHeader(.contentType, value: "application/json")
-//                response.completed()
-//            } catch {
-//                serverErrorHandler(request, response)
-//                Log.error(message: "rentlist : \(error)")
-//            }
-//        }
-//    }
-//
+    /// 收租信息列表
+    ///
+    /// - Parameters:
+    ///   - request: 请求
+    ///   - response: 响应
+    open static func rentlist() -> RequestHandler {
+        return {
+            request, response in
+            do {
+
+                var offset = 0
+                var limit = 20
+                if let page = request.param(name: "page") {
+                    offset = Int(page)!
+                    offset = (offset - 1) * 2
+                }
+
+                var listType = "all"
+                if let type = request.param(name: "type") {
+                    listType = type
+                }
+
+                if listType == "expire" {
+                    offset = 0
+                    limit = 100
+                }
+                
+                let roomTable = db.table(Room.self)
+                let query = try roomTable
+                    .limit(limit, skip: offset)
+                    .join(\.payment, on: \.id, equals: \.room_id)
+                    .select()
+
+                var roomArray: [[String: Any]] = []
+
+                var ssss = Date()
+                
+                for row in query {
+                    print("\(row.updated_at)")
+                    print("\(row.create_at)")
+                    print("\(row.id)")
+                    ssss = row.updated_at
+                    roomArray.append(row.asDetailDict() as [String: Any])
+                }
+                
+                let jsonDict = ["success": true, "status": 200, "data": ssss] as [String : Any]
+
+                try response.setBody(json: jsonDict)
+                response.setHeader(.contentType, value: "application/json")
+                response.completed()
+                return
+            } catch {
+                serverErrorHandler(request, response)
+                Log.error(message: "rentlist : \(error)")
+            }
+        }
+    }
+
     //账单状态
     open static func receive() -> RequestHandler {
         return {
@@ -107,9 +94,9 @@ public class RentList: BaseHandler {
                 }
 
                 
-                var payment = Payment()
-                payment.state = state
-                payment.updated_at = Date()
+                let payment = Payment.init(id: UUID(), room_id: UUID(), state: state, payee: "", rent_date: "", money: 0, rent_money: 0, water: 0, electricity: 0, network: 30, trash_fee: 50, arrears: 0, remark: "", create_at: Date(), updated_at: Date())
+//                payment.state = state
+//                payment.updated_at = Date()
                 
                 let paymentTable = db.table(Payment.self)
                 try paymentTable
@@ -137,7 +124,7 @@ public class RentList: BaseHandler {
 //                }
 //
 //                //收租时间
-//                guard let rentdate = request.param(name: "rentdate"), (moment(rentdate)?.date) != nil else {
+//                guard let rentdate = request.param(name: "rentdate") else {
 //                    error(request, response, error: "收租时间 rentdate 请求参数不正确")
 //                    return
 //                }
@@ -170,7 +157,7 @@ public class RentList: BaseHandler {
 //            }
 //        }
 //    }
-//
+
     // 退房
     open static func checkOut() -> RequestHandler {
         return {
@@ -182,16 +169,18 @@ public class RentList: BaseHandler {
                     return
                 }
 
-                var room = Room()
-                room.state = true
-                room.updated_at = Date()
+               let room = Room.init(id: UUID(), state: true, room_no: "", rent_money: 0, deposit: 0, lease_term: 0, rent_date: "", network: 0, trash_fee: 0, create_at: Date(), updated_at: Date(), payment: nil, tenant: nil)
+                
+//                let room = Room.init(id: UUID(), state: true, room_no: "", rent_money: 0, deposit: 0, lease_term: 0, rent_date: "", network: 0, trash_fee: 0, create_at: Date(), updated_at: Date())
+//                room.state = true
+//                room.updated_at = Date()
                 
                 let roomTable = db.table(Room.self)
                 try roomTable.where(\Room.id == room_id).update(room, setKeys: \.state, \.updated_at)
                 
-                var tenant = Tenant()
-                tenant.state = true
-                tenant.updated_at = Date()
+                let tenant = Tenant.init(id: UUID(), room_id: UUID(), state: true, name: "", idcard: "", phone: "", create_at: Date(), updated_at: Date())
+//                tenant.state = true
+//                tenant.updated_at = Date()
                 
                 let tenantTable = db.table(Tenant.self)
                 try tenantTable.where(\Tenant.room_id == room_id).update(tenant, setKeys: \.state, \.updated_at)

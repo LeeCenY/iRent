@@ -10,20 +10,20 @@ import PerfectCRUD
 import PerfectMySQL
 
 struct Payment: Codable {
-    var id: UUID                        = UUID()
-    var room_id: UUID                   = UUID()                     //房间id
-    var state: Bool                     = false                     //是否已经缴费
-    var payee: String                   = ""                    //收款人
-    var rent_date: String               = Date().toDateString()    //月份
-    var money: Double                   = 0.00                  //总数
-    var rent_money: Int                 = 0                     //租金
-    var water: Int                      = 0                     //水表数
-    var electricity: Int                = 0                     //电表数
-    var network: Int                    = 0                     //网络
-    var trash_fee: Int                  = 0                     //垃圾费
-    var arrears: Double                 = 0.00                     //欠费
-    var remark: String                  = ""                    //备注
-    var create_at: Date                = Date()    //创建时间
-    var updated_at: Date               = Date()    //更新时间
+    let id: UUID
+    let room_id: UUID                                 //房间id
+    let state: Bool?                                   //是否已经缴费
+    let payee: String?                              //收款人
+    let rent_date: String?       //月份
+    let money: Double?                        //总数
+    let rent_money: Int?                       //租金
+    let water: Int?                               //水表数
+    let electricity: Int?                      //电表数
+    let network: Int?                            //网络
+    let trash_fee: Int?                       //垃圾费
+    let arrears: Double?                        //欠费
+    let remark: String?                     //备注
+    let create_at: Date  //创建时间
+    let updated_at: Date   //更新时间
 }
 
