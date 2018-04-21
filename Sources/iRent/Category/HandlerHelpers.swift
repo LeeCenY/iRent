@@ -2,7 +2,7 @@ import PerfectHTTP
 
 extension BaseHandler {
     
-    static func error(_ request: HTTPRequest, _ response: HTTPResponse, error: String, code: HTTPResponseStatus = .badRequest) {
+    static func resError(_ request: HTTPRequest, _ response: HTTPResponse, error: String, code: HTTPResponseStatus = .badRequest) {
         do {
             try response.setBody(json: ["success": false, "status": code.description , "data": "\(error)"])
         } catch {

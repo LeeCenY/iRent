@@ -9,11 +9,10 @@ public func makeWebDemoRoutes() -> [Route] {
     var routeArray = [Route]()
     // 登记信息
     routeArray.append(Route(method: .post, uri: "registration", handler: Registration.tenant()))
-//
-//    // 收租信息列表
+    // 收租信息列表
     routeArray.append(Route(method: .get, uri: "rentlist", handler: RentList.rentlist()))
-//    // 获取详情信息
-//    routeArray.append(Route(method: .get, uri: "details", handler: RentList.details()))
+    // 获取详情信息
+    routeArray.append(Route(method: .get, uri: "details", handler: RentList.details()))
     // 收到房租
     routeArray.append(Route(method: .post, uri: "receive", handler: RentList.receive()))
     // 更新住户信息
