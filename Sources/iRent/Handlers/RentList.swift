@@ -191,18 +191,38 @@ public class RentList: BaseHandler {
                     resError(request, response, error: "收租时间 rentdate 请求参数不正确")
                     return
                 }
+                //总数
+                guard let money: String = dict["money"] as? String, Double(money) != nil else {
+                    resError(request, response, error: "总数 money 请求参数不正确")
+                    return
+                }
+                //收款人
+                guard let payee: String = dict["payee"] as? String else {
+                    resError(request, response, error: "收款人 payee 请求参数不正确")
+                    return
+                }
                 //账单状态
                 guard let state: Bool = dict["state"] as? Bool else {
                     resError(request, response, error: "账单状态 state 请求参数不正确")
                     return
                 }
-                
-                let payment = Payment.init(id: UUID(), room_id: UUID(), state: state, payee: "", rent_date: "", money: 0, rent_money: 0, water: 0, electricity: 0, network: 0, trash_fee: 0, arrears: 0, remark: "", create_at: Date().iso8601(), updated_at: Date().iso8601())
+
+                let payment = Payment.init(id: UUID(), room_id: UUID(), state: state, payee: payee, rent_date: rentDate, money: Double(money)!, rent_money: nil, water: nil, electricity: nil, network: nil, trash_fee: nil, arrears: nil, remark: nil, create_at: Date().iso8601(), updated_at: Date().iso8601())
                 
                 let paymentTable = db.table(Payment.self)
+                
+                let query = try paymentTable
+                    .where(\Payment.room_id == id && \Payment.rent_date == rentDate && \Payment.state == true)
+                    .count()
+                if (query > 0) {
+                    try response.setBody(json: ["success": true, "status": 200, "data": "已经到账"])
+                    response.completed()
+                    return
+                }
+            
                 try paymentTable
                     .where(\Payment.room_id == id && \Payment.rent_date == rentDate)
-                    .update(payment, setKeys: \.state, \.updated_at)
+                    .update(payment, setKeys: \.state, \.payee, \.money, \.updated_at)
                 
                 try response.setBody(json: ["success": true, "status": 200, "data": "收账"])
                 response.completed()

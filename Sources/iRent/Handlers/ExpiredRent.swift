@@ -45,7 +45,22 @@ public class ExpiredRent: BaseHandler {
                     resError(request, response, error: "电表数 electricity 请求参数不正确")
                     return
                 }
-                
+                //租金
+                guard let rent_money: Int = dict["rent_money"] as? Int else {
+                    resError(request, response, error: "租金 rent_money 请求参数不正确")
+                    return
+                }
+                //网络
+                guard let network: Int = dict["network"] as? Int else {
+                    resError(request, response, error: "网络 network 请求参数不正确")
+                    return
+                }
+                //垃圾费
+                guard let trash_fee: Int = dict["trash_fee"] as? Int else {
+                    resError(request, response, error: "网络 network 请求参数不正确")
+                    return
+                }
+
                 let roomTable = db.table(Room.self)
                 let query = roomTable.where(\Room.id == id)
                 
@@ -58,11 +73,11 @@ public class ExpiredRent: BaseHandler {
                 
                 let paymentTable = db.table(Payment.self)
                 
-                let payment = Payment.init(id: UUID(), room_id: UUID(), state: false, payee: "", rent_date: rentDate, money: 100, rent_money: 0, water: water, electricity: electricity, network: 999, trash_fee:999, arrears: 999, remark: "", create_at: Date().iso8601(), updated_at: Date().iso8601())
+                let payment = Payment.init(id: UUID(), room_id: UUID(), state: false, payee: nil, rent_date: rentDate, money: nil, rent_money: rent_money, water: water, electricity: electricity, network: network, trash_fee:trash_fee, arrears: nil, remark: nil, create_at: Date().iso8601(), updated_at: Date().iso8601())
 
                 try paymentTable
                     .where(\Payment.room_id == id && \Payment.rent_date == rentDate)
-                    .update(payment, setKeys: \.rent_date, \.water, \.electricity, \.state, \.updated_at)
+                    .update(payment, ignoreKeys: \.id, \.room_id, \.create_at, \.money)
                 
                 try response.setBody(json: ["success": true, "status": 200, "data": "更新成功"])
                 response.completed()

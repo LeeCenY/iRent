@@ -49,17 +49,17 @@ public class Registration: BaseHandler  {
                     return
                 }
                 //收租时间
-                guard let rentdate: String = dict["rentdate"] as? String else {
+                guard let rentDate: String = dict["rentdate"] as? String, rentDate.toDate() != nil else {
                     resError(request, response, error: "收租时间 rentdate 请求参数不正确")
                     return
                 }
                 //租金
-                guard  let rentmeony: Int = dict["rentmeony"] as? Int  else {
+                guard  let rentmeony: Int = dict["rentmeony"] as? Int, rentmeony > 0 else {
                     resError(request, response, error: "租金 rentmeony 请求参数不正确")
                     return
                 }
                 //押金
-                guard   let deposit: Int = dict["deposit"] as? Int else {
+                guard   let deposit: Int = dict["deposit"] as? Int, deposit > 0 else {
                     resError(request, response, error: "押金 deposit 请求参数不正确")
                     return
                 }
@@ -88,11 +88,11 @@ public class Registration: BaseHandler  {
                     return
                 }
                 
-                let room = Room.init(id: UUID.init(), state: false, room_no: roomno, rent_money: rentmeony, deposit: deposit, lease_term: leaseterm, rent_date: rentdate, network: network, trash_fee: trashfee, create_at: Date().iso8601(), updated_at: Date().iso8601(), payments: nil, tenants: nil)
+                let room = Room.init(id: UUID.init(), state: false, room_no: roomno, rent_money: rentmeony, deposit: deposit, lease_term: leaseterm, rent_date: rentDate, network: network, trash_fee: trashfee, create_at: Date().iso8601(), updated_at: Date().iso8601(), payments: nil, tenants: nil)
 
                 let tenant = Tenant.init(id: UUID.init(), room_id: room.id, state: false, name: name, idcard: idcard, phone: phone, create_at: Date().iso8601(), updated_at: Date().iso8601())
 
-                let payment = Payment.init(id: UUID.init(), room_id: room.id, state: false, payee: "", rent_date: rentdate, money: 0, rent_money: rentmeony, water: water, electricity: electricity, network: network, trash_fee: trashfee, arrears: 0, remark: "", create_at: Date().iso8601(), updated_at: Date().iso8601())
+                let payment = Payment.init(id: UUID.init(), room_id: room.id, state: false, payee: "", rent_date: rentDate, money: 0, rent_money: rentmeony, water: water, electricity: electricity, network: network, trash_fee: trashfee, arrears: 0, remark: "", create_at: Date().iso8601(), updated_at: Date().iso8601())
 
                 try roomTable.insert(room)
                 try tenantTable.insert(tenant)
