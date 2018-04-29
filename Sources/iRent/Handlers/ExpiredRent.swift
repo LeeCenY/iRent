@@ -2,10 +2,7 @@
 import Foundation
 import PerfectLib
 import PerfectHTTP
-import MySQLStORM
-import StORM
-import SwiftMoment
-
+import PerfectCRUD
 
 /// 抄表
 public class ExpiredRent: BaseHandler {
@@ -22,77 +19,67 @@ public class ExpiredRent: BaseHandler {
                     let json = request.postBodyString,
                     let dict = try json.jsonDecode() as? [String: Any]
                     else {
-                        error(request, response, error: "请填写请求参数")
+                        resError(request, response, error: "请填写请求参数")
                         return
                 }
                 //id
-                guard let id: Int = dict["id"] as? Int else {
-                    error(request, response, error: "id 请求参数不正确")
+                guard let id = UUID.init(uuidString: (dict["id"] as? String)!) else {
+                    resError(request, response, error: "id 请求参数不正确")
                     return
                 }
-                //月份
-                guard let month: String = dict["month"] as? String, moment(month, dateFormat: DateFormat.month) != nil else {
-                    error(request, response, error: "月份 month 请求参数不正确")
+                
+                //收租时间
+                guard let rentDate: String = dict["rent_date"] as? String, rentDate.toDate() != nil else {
+                    resError(request, response, error: "收租时间 rentdate 请求参数不正确")
                     return
                 }
+                
+                
                 //水表数
                 guard let water: Int = dict["water"] as? Int else {
-                    error(request, response, error: "水表数 water 请求参数不正确")
+                    resError(request, response, error: "水表数 water 请求参数不正确")
                     return
                 }
                 //电表数
                 guard let electricity: Int = dict["electricity"] as? Int else {
-                    error(request, response, error: "电表数 electricity 请求参数不正确")
+                    resError(request, response, error: "电表数 electricity 请求参数不正确")
                     return
                 }
-                
-                let room = Room()
-                try room.get(id)
-                if room.rows().count == 0 {
-                    error(request, response, error: "房间id不存在")
+                //租金
+                guard let rent_money: Int = dict["rent_money"] as? Int else {
+                    resError(request, response, error: "租金 rent_money 请求参数不正确")
                     return
                 }
-                
-                let payment = Payment()
-                try payment.select(whereclause: "room_id = ? AND month = ?",
-                                   params: [id, month],
-                                   orderby: [])
-                
-                if payment.rows().count != 0,
-                    payment.rows().count != 0 {
-                    error(request, response, error: "已经更新过数据")
+                //网络
+                guard let network: Int = dict["network"] as? Int else {
+                    resError(request, response, error: "网络 network 请求参数不正确")
                     return
                 }
+                //垃圾费
+                guard let trash_fee: Int = dict["trash_fee"] as? Int else {
+                    resError(request, response, error: "网络 network 请求参数不正确")
+                    return
+                }
+
+                let roomTable = db.table(Room.self)
+                let query = roomTable.where(\Room.id == id)
                 
+                guard try query.count() != 0 else {
+                    resError(request, response, error: "房间 id 不存在")
+                    return
+                }
+
+                //TODO 还需要判断时间
                 
+                let paymentTable = db.table(Payment.self)
                 
-                payment.room_id         = id
-                payment.month           = month
-                payment.water           = water
-                payment.electricity     = electricity
-                payment.state           = 0
+                let payment = Payment.init(id: UUID(), room_id: UUID(), state: false, payee: nil, rent_date: rentDate, money: nil, rent_money: rent_money, water: water, electricity: electricity, network: network, trash_fee:trash_fee, arrears: nil, remark: nil, create_at: Date().iso8601(), updated_at: Date().iso8601())
+
+                try paymentTable
+                    .where(\Payment.room_id == id && \Payment.rent_date == rentDate)
+                    .update(payment, ignoreKeys: \.id, \.room_id, \.create_at, \.money)
                 
-                let payment_insert =  try payment.insert(
-                    cols: ["room_id",
-                           "state",
-                           "month",
-                           "water",
-                           "electricity",
-                           "create_at",
-                           "updated_at"],
-                    params: [payment.room_id,
-                             payment.state,
-                             payment.month,
-                             payment.water,
-                             payment.electricity,
-                             payment.create_at,
-                             payment.updated_at,]
-                )
-                
-                try response.setBody(json: ["success": true, "status": 200, "data":
-                    [
-                        "payment_id": payment_insert,
-                    ]])
+                try response.setBody(json: ["success": true, "status": 200, "data": "更新成功"])
                 response.completed()
             } catch {
                 serverErrorHandler(request, response)

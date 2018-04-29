@@ -17,7 +17,6 @@ struct Filter404: HTTPResponseFilter {
             callback(.continue)
         }
     }
-    
 }
 
 
