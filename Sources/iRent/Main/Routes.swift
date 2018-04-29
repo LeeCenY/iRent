@@ -21,6 +21,8 @@ public func makeWebDemoRoutes() -> [Route] {
     routeArray.append(Route(method: .get, uri: "checkout", handler: RentList.checkOut()))
     // 查询住户信息
     routeArray.append(Route(method: .get, uri: "roomquery", handler: RoomNo.queryRoomNo()))
+    // 七牛token
+    routeArray.append(Route(method: .get, uri: "qiniutoken", handler: Qiniu.qiniutoken()))
 
     return routeArray
 }

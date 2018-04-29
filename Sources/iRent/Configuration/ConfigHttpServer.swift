@@ -1,5 +1,7 @@
+import Foundation
 import PerfectLib
 import PerfectHTTPServer
+import PerfectCrypto
 
 /// HTTPServer 服务器配置
 ///
@@ -11,37 +13,27 @@ public func ConfigServer() -> HTTPServer {
     return server
 }
 
-//public func ConfigMySql() {
-//    MySQLConnector.host        = "127.0.0.1"
-//    MySQLConnector.username    = "root"
-//    MySQLConnector.password    = "123456789"
-//    MySQLConnector.database    = "test"
-//    MySQLConnector.port        = 3306
-//}
+/// 七牛 key and token
+public struct QiniuConfig {
+    
+    let SK = "在七牛上注册账号分配"
+    let AK = "在七牛上注册账号分配"
+    let scope = "空间名"
 
-//class DataBaseConnect {
-//    static func setup() {
-//        MySQLConnector.host        = "127.0.0.1"
-//        MySQLConnector.username    = "root"
-//        MySQLConnector.password    = "123456789"
-//        MySQLConnector.database    = "test"
-//        MySQLConnector.port        = 3306
-//
-//        self.setTable()
-//    }
-//
-//    private static func setTable() {
-//        setupTable(storm: Room())
-//        setupTable(storm: Tenant())
-//        setupTable(storm: Payment())
-//    }
-//
-//    private static func setupTable(storm: MySQLStORM){
-//        do {
-//            try storm.setupTable()
-//        } catch  {
-//            print(("\(storm.table())表初始化失败"))
-//        }
-//    }
-//}
+    func getToken(day: TimeInterval) throws -> String? {
+        
+        let deadline = Date().timeIntervalSince1970 + day * 24 * 3600
+        let putPolicy: [String : Any] = ["scope": scope,"deadline": Int(deadline)]
+        
+        let jsonData = try putPolicy.jsonEncodedString()
+        guard let encodeString = String.init(validatingUTF8: jsonData.encode(.base64)!)?.urlSafeBase64() else {
+            return nil
+        }
+        guard let encodedSignString = String(validatingUTF8:(encodeString.sign(.sha1, key: HMACKey.init(SK))?.encode(.base64))!)?.urlSafeBase64() else {
+            return nil
+        }
+        return "\(AK):\(encodedSignString):\(encodeString)"
+    }
+}
+
 

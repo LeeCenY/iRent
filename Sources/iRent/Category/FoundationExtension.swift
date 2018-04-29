@@ -44,6 +44,14 @@ public extension String {
     func format(_ dateFormat: String = DateFormat.DateTime) -> Date? {
         return DateFormatter().format(dateFormat: dateFormat).date(from: self) as Date?
     }
+    
+    func urlSafeBase64() -> String {
+        var base64 = self
+        base64 = base64.replacingOccurrences(of: "+", with: "_")
+        base64 = base64.replacingOccurrences(of: "/", with: "_")
+        return base64
+    }
+    
 }
 
 extension DateFormatter {
