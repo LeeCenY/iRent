@@ -20,7 +20,7 @@ public class RoomNo: BaseHandler {
                     return
                 }
 
-                let roomTable = db.table(Room.self)
+                let roomTable = db().table(Room.self)
                 let qurey = try roomTable
                     .where(\Room.room_no == roomno && \Room.state == true)
                     .select().map {$0}

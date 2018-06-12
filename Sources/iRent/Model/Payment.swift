@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import PerfectCRUD
-import PerfectMySQL
 
 struct Payment: Codable {
     let id: UUID
@@ -21,6 +19,7 @@ struct Payment: Codable {
     let electricity: Int?                      //电表数
     let network: Int?                            //网络
     let trash_fee: Int?                       //垃圾费
+    let image_url: String?                          //图片URL
     let arrears: Double?                        //欠费
     let remark: String?                     //备注
     let create_at: String  //创建时间

@@ -75,9 +75,9 @@ public class Registration: BaseHandler  {
                     return
                 }
 
-                let roomTable = db.table(Room.self)
-                let tenantTable = db.table(Tenant.self)
-                let paymentTable = db.table(Payment.self)
+                let roomTable = db().table(Room.self)
+                let tenantTable = db().table(Tenant.self)
+                let paymentTable = db().table(Payment.self)
 
                 let query = try roomTable
                     .where(\Room.room_no == roomno && \Room.state == false)
@@ -88,11 +88,13 @@ public class Registration: BaseHandler  {
                     return
                 }
                 
+                let money = Double(rentmeony + deposit + network + trashfee);
+                
                 let room = Room.init(id: UUID.init(), state: false, room_no: roomno, rent_money: rentmeony, deposit: deposit, lease_term: leaseterm, rent_date: rentDate, network: network, trash_fee: trashfee, create_at: Date().iso8601(), updated_at: Date().iso8601(), payments: nil, tenants: nil)
 
                 let tenant = Tenant.init(id: UUID.init(), room_id: room.id, state: false, name: name, idcard: idcard, phone: phone, create_at: Date().iso8601(), updated_at: Date().iso8601())
 
-                let payment = Payment.init(id: UUID.init(), room_id: room.id, state: false, payee: "", rent_date: rentDate, money: 0, rent_money: rentmeony, water: water, electricity: electricity, network: network, trash_fee: trashfee, arrears: 0, remark: "", create_at: Date().iso8601(), updated_at: Date().iso8601())
+                let payment = Payment.init(id: UUID.init(), room_id: room.id, state: true, payee: "", rent_date: rentDate, money: money, rent_money: rentmeony, water: water, electricity: electricity, network: network, trash_fee: trashfee, image_url: nil, arrears: 0, remark: "", create_at: Date().iso8601(), updated_at: Date().iso8601())
 
                 try roomTable.insert(room)
                 try tenantTable.insert(tenant)
