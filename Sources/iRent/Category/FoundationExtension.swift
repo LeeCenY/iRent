@@ -1,28 +1,23 @@
 
 import Foundation
 
-struct DateFormat {
-    static let Date = "yyyy-MM-dd"
-    static let DateTime = "yyyy-MM-dd HH:mm:ss ZZZZ"
-}
-
 public extension Date {
     
     public func toDateString() -> String {
-        return format(DateFormat.Date)
+        return format(.Date)
     }
     
     public func toDateTimeString() -> String {
-        return format(DateFormat.DateTime)
+        return format(.DateTime)
     }
     
-    public func format(_ dateFormat: String = DateFormat.DateTime) -> String {
-        return DateFormatter().format(dateFormat: dateFormat).string(from: self)
+    public func format(_ dateFormat: DateFormatter.Format = .DateTime) -> String {
+        return DateFormatter().format(dateFormat: dateFormat.rawValue).string(from: self)
     }
     
-    public init(dateString: String, _ format: String = DateFormat.DateTime) {
+    public init(dateString: String, _ format: DateFormatter.Format = .DateTime) {
         
-        let dateFormatter = DateFormatter().format(dateFormat: format)
+        let dateFormatter = DateFormatter().format(dateFormat: format.rawValue)
         guard let date = dateFormatter.date(from: dateString) else {
             self = Date()
             return
@@ -34,15 +29,15 @@ public extension Date {
 public extension String {
 
     public func toDate() -> Date? {
-        return format(DateFormat.Date)
+        return format(.Date)
     }
     
     public func toDateTime() -> Date? {
-        return format(DateFormat.DateTime)
+        return format(.DateTime)
     }
     
-    func format(_ dateFormat: String = DateFormat.DateTime) -> Date? {
-        return DateFormatter().format(dateFormat: dateFormat).date(from: self) as Date?
+    func format(_ dateFormat: DateFormatter.Format = .DateTime) -> Date? {
+        return DateFormatter().format(dateFormat: dateFormat.rawValue).date(from: self) as Date?
     }
     
     func urlSafeBase64() -> String {
@@ -54,9 +49,14 @@ public extension String {
     
 }
 
-extension DateFormatter {
+public extension DateFormatter {
     
-    public func format(dateFormat: String) -> DateFormatter {
+    enum Format: String {
+        case Date = "yyyy-MM-dd"
+        case DateTime = "yyyy-MM-dd HH:mm:ss ZZZZ"
+    }
+
+    func format(dateFormat: String) -> DateFormatter {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = dateFormat;
         dateFormatter.timeZone = TimeZone.init(secondsFromGMT: -8 * 3600)!;
