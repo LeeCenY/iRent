@@ -118,53 +118,59 @@ public class RentList: BaseHandler {
                         .select()
                     
                     for row in query {
-                    
+                        
                         var paymentDict:[String: Any] = [String: Any]()
-                        paymentDict["id"] = row.id.uuidString
-                        paymentDict["room_id"] = row.room_id.uuidString
-                        paymentDict["state"] = false
-                        paymentDict["water"] = row.water
-                        paymentDict["electricity"] = row.electricity
-                        paymentDict["rent_date"] = Date.init(dateString: row.rent_date, .Date).add(timeChunk).toDateString()
-                        paymentDict["updated_at"] = row.updated_at
-                        paymentDict["last_water"] = row.water
-                        paymentDict["last_electricity"] = row.electricity
-                        paymentDict["is_rang"] = true
-
+                        
                         let roomTable = db().table(Room.self)
                         let rowQuery = try roomTable
                             .where(\Room.id == row.room_id)
                             .select().map{ $0 }
                         
                         //查询房间信息
-                        for row in rowQuery {
-                            paymentDict["room_no"] = row.room_no
-                            paymentDict["rent_money"] = row.rent_money
-                            paymentDict["deposit"] = row.deposit
-                            paymentDict["lease_term"] = row.lease_term
-                            paymentDict["network"] = row.network
-                            paymentDict["trash_fee"] = row.trash_fee
-                        }
-                        
-                        guard let rent_date = row.rent_date.toDate()?.add(timeChunk).toDateString() else {
-                            resError(request, response, error: "rent_date 错误")
-                            return
-                        }
+                        for roomRow in rowQuery {
+                            
+                            if(roomRow.state == true) {
+                                continue
+                            }
+                            
+                            paymentDict["room_no"] = roomRow.room_no
+                            paymentDict["rent_money"] = roomRow.rent_money
+                            paymentDict["deposit"] = roomRow.deposit
+                            paymentDict["lease_term"] = roomRow.lease_term
+                            paymentDict["network"] = roomRow.network
+                            paymentDict["trash_fee"] = roomRow.trash_fee
 
-                        //查询本月信息
-                        let lastQuery = try paymentTable
-                            .where(\Payment.room_id == row.room_id && \Payment.rent_date == rent_date)
-                            .select().map{ $0 }
+                            paymentDict["id"] = row.id.uuidString
+                            paymentDict["room_id"] = row.room_id.uuidString
+                            paymentDict["state"] = false
+                            paymentDict["water"] = row.water
+                            paymentDict["electricity"] = row.electricity
+                            paymentDict["rent_date"] = Date.init(dateString: row.rent_date, .Date).add(timeChunk).toDateString()
+                            paymentDict["updated_at"] = row.updated_at
+                            paymentDict["last_water"] = row.water
+                            paymentDict["last_electricity"] = row.electricity
+                            paymentDict["is_rang"] = true
 
-                        for last in lastQuery {
-                            paymentDict["id"] = last.id.uuidString
-                            paymentDict["state"] = last.state
-                            paymentDict["water"] = last.water
-                            paymentDict["electricity"] = last.electricity
-                            paymentDict["rent_date"] = last.rent_date
-                            paymentDict["updated_at"] = last.updated_at
+                            guard let rent_date = row.rent_date.toDate()?.add(timeChunk).toDateString() else {
+                                resError(request, response, error: "rent_date 错误")
+                                return
+                            }
+
+                            //查询本月信息
+                            let lastQuery = try paymentTable
+                                .where(\Payment.room_id == row.room_id && \Payment.rent_date == rent_date)
+                                .select().map{ $0 }
+
+                            for last in lastQuery {
+                                paymentDict["id"] = last.id.uuidString
+                                paymentDict["state"] = last.state
+                                paymentDict["water"] = last.water
+                                paymentDict["electricity"] = last.electricity
+                                paymentDict["rent_date"] = last.rent_date
+                                paymentDict["updated_at"] = last.updated_at
+                            }
+                            roomArray.append(paymentDict)
                         }
-                        roomArray.append(paymentDict)
                     }
                 }
                 try response.setBody(json: ["success": true, "status": 200, "data": roomArray] as [String: Any])
