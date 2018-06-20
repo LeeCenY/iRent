@@ -68,7 +68,7 @@ public class Qiniu: BaseHandler {
                     return
                 }
                 
-                let payment = Payment.init(id: UUID(), room_id: UUID(), state: false, payee: nil, rent_date: rentDate, money: nil, rent_money: nil, water: nil, electricity: nil, network: nil, trash_fee:nil, image_url: imageURL, arrears: nil, remark: nil, create_at: Date().iso8601(), updated_at: Date().iso8601())
+                let payment = Payment.init(room_id: UUID(), state: false, payee: nil, rent_date: rentDate, money: nil, rent_money: nil, water: nil, electricity: nil, network: nil, trash_fee:nil, image_url: imageURL, arrears: nil, remark: nil)
                 
                 do {
                     let paymentTable = db().table(Payment.self)

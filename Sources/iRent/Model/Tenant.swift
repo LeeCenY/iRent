@@ -17,5 +17,16 @@ struct Tenant: Codable {
     let phone: String?                             //手机号
     let create_at: String                       //创建时间
     let updated_at: String                        //更新时间
+
+    public init(room_id: UUID, state: Bool?, name: String?, idcard: String?, phone: String?) {
+        self.id = UUID()
+        self.room_id = room_id
+        self.state = state
+        self.name = name
+        self.idcard = idcard
+        self.phone = phone
+        self.create_at = Date().iso8601()
+        self.updated_at = Date().iso8601()
+    }
 }
 

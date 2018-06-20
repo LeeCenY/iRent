@@ -90,11 +90,11 @@ public class Registration: BaseHandler  {
                 
                 let money = Double(rentmeony + deposit + network + trashfee);
                 
-                let room = Room.init(id: UUID.init(), state: false, room_no: roomno, rent_money: rentmeony, deposit: deposit, lease_term: leaseterm, rent_date: rentDate, network: network, trash_fee: trashfee, create_at: Date().iso8601(), updated_at: Date().iso8601(), payments: nil, tenants: nil)
+                let room = Room.init(state: false, room_no: roomno, rent_money: rentmeony, deposit: deposit, lease_term: leaseterm, rent_date: rentDate, network: network, trash_fee: trashfee)
 
-                let tenant = Tenant.init(id: UUID.init(), room_id: room.id, state: false, name: name, idcard: idcard, phone: phone, create_at: Date().iso8601(), updated_at: Date().iso8601())
+                let tenant = Tenant.init(room_id: room.id, state: false, name: name, idcard: idcard, phone: phone)
 
-                let payment = Payment.init(id: UUID.init(), room_id: room.id, state: true, payee: "", rent_date: rentDate, money: money, rent_money: rentmeony, water: water, electricity: electricity, network: network, trash_fee: trashfee, image_url: nil, arrears: 0, remark: "", create_at: Date().iso8601(), updated_at: Date().iso8601())
+                let payment = Payment.init(room_id: room.id, state: true, payee: "", rent_date: rentDate, money: money, rent_money: rentmeony, water: water, electricity: electricity, network: network, trash_fee: trashfee, image_url: nil, arrears: 0, remark: "")
 
                 try roomTable.insert(room)
                 try tenantTable.insert(tenant)

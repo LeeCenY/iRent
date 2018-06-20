@@ -70,7 +70,7 @@ public class ExpiredRent: BaseHandler {
                 
                 //先 insert 本月信息
                 if queryCount == 0  {
-                    let payment = Payment.init(id: UUID(), room_id: id, state: false, payee: nil, rent_date: rentDate, money: nil, rent_money: rent_money, water: nil, electricity: nil, network: network, trash_fee: trash_fee, image_url: nil, arrears: nil, remark: nil, create_at: Date().iso8601(), updated_at: Date().iso8601())
+                    let payment = Payment.init(room_id: id, state: false, payee: nil, rent_date: rentDate, money: nil, rent_money: rent_money, water: nil, electricity: nil, network: network, trash_fee: trash_fee, image_url: nil, arrears: nil, remark: nil)
                     
                     try paymentTable.insert(payment)
                 }
@@ -78,7 +78,7 @@ public class ExpiredRent: BaseHandler {
                 
                 //TODO 还需要判断时间
                 
-                let payment = Payment.init(id: UUID(), room_id: UUID(), state: false, payee: nil, rent_date: rentDate, money: nil, rent_money: rent_money, water: water, electricity: electricity, network: network, trash_fee:trash_fee, image_url: nil, arrears: nil, remark: nil, create_at: Date().iso8601(), updated_at: Date().iso8601())
+                let payment = Payment.init(room_id: UUID(), state: false, payee: nil, rent_date: rentDate, money: nil, rent_money: rent_money, water: water, electricity: electricity, network: network, trash_fee:trash_fee, image_url: nil, arrears: nil, remark: nil)
                 
                 
                 try paymentTable
@@ -148,7 +148,7 @@ public class ExpiredRent: BaseHandler {
                     return
                 }
                 
-                let room = Room.init(id: UUID(), state: false, room_no: nil, rent_money: rentMeony, deposit: deposit, lease_term: nil, rent_date: nil, network: network, trash_fee: trashfee, create_at: Date().iso8601(), updated_at: Date().iso8601(), payments: nil, tenants: nil)
+                let room = Room.init(state: false, room_no: nil, rent_money: rentMeony, deposit: deposit, lease_term: nil, rent_date: nil, network: network, trash_fee: trashfee)
                 
                 do {
                     try roomTable

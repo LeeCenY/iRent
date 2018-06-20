@@ -8,6 +8,7 @@
 import Foundation
 
 struct Payment: Codable {
+    
     let id: UUID
     let room_id: UUID                                 //房间id
     let state: Bool                                   //是否已经缴费
@@ -25,24 +26,23 @@ struct Payment: Codable {
     let create_at: String  //创建时间
     let updated_at: String   //更新时间
 
-    func asDetailDict() -> [String: Any] {
-        return [
-            "id":               "\(self.id)",
-            "room_id":          "\(self.room_id)",
-            "state":            self.state,
-            "rent_money":       self.rent_money ?? 0,
-            "payee":            self.payee ?? 0,
-            "rent_date":        self.rent_date,
-            "money":            self.money ?? "",
-            "rent_money":       self.rent_money ?? 0,
-            "water":            self.water ?? 0,
-            "electricity":      self.electricity ?? 0,
-            "trash_fee":        self.trash_fee ?? 0,
-            "arrears":          self.arrears ?? 0,
-            "remark":           self.remark ?? "",
-            "create_at":        self.create_at,
-            "updated_at":       self.updated_at,
-        ]
+    public init(room_id: UUID, state: Bool, payee: String?, rent_date: String, money: Double?, rent_money: Int?, water: Int?, electricity: Int?, network: Int?, trash_fee: Int?, image_url: String?, arrears: Double?, remark: String?) {
+        self.id = UUID()
+        self.room_id = room_id
+        self.state = state
+        self.payee = payee
+        self.rent_date = rent_date
+        self.money = money
+        self.rent_money = rent_money
+        self.water = water
+        self.electricity = electricity
+        self.network = network
+        self.trash_fee = trash_fee
+        self.image_url = image_url
+        self.arrears = arrears
+        self.remark = remark
+        self.create_at = Date().iso8601()
+        self.updated_at = Date().iso8601()
     }
 }
 

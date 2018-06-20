@@ -235,7 +235,7 @@ public class RentList: BaseHandler {
                     return
                 }
 
-                let payment = Payment.init(id: UUID(), room_id: UUID(), state: state, payee: payee, rent_date: rentDate, money: Double(money)!, rent_money: nil, water: nil, electricity: nil, network: nil, trash_fee: nil, image_url: imageURL, arrears: nil, remark: nil, create_at: Date().iso8601(), updated_at: Date().iso8601())
+                let payment = Payment.init(room_id: UUID(), state: state, payee: payee, rent_date: rentDate, money: Double(money)!, rent_money: nil, water: nil, electricity: nil, network: nil, trash_fee: nil, image_url: imageURL, arrears: nil, remark: nil)
                 
                 let paymentTable = db().table(Payment.self)
                 
@@ -355,9 +355,9 @@ public class RentList: BaseHandler {
                     return
                 }
                 //TODO 还需要根据多种情况操作退房
-                let room = Room.init(id: UUID(), state: true, room_no: "", rent_money: 0, deposit: 0, lease_term: 0, rent_date: "", network: 0, trash_fee: 0, create_at: Date().iso8601(), updated_at: Date().iso8601(), payments: nil, tenants: nil)
+                let room = Room.init(state: true, room_no: "", rent_money: 0, deposit: 0, lease_term: 0, rent_date: "", network: 0, trash_fee: 0)
                 
-                let tenant = Tenant.init(id: UUID(), room_id: UUID(), state: true, name: "", idcard: "", phone: "", create_at: Date().iso8601(), updated_at: Date().iso8601())
+                let tenant = Tenant.init(room_id: UUID(), state: true, name: "", idcard: "", phone: "")
                 
                 let tenantTable = db().table(Tenant.self)
                 let roomTable = db().table(Room.self)
