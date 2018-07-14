@@ -3,6 +3,7 @@
 
 
 - 编译运行
+
 下列命令行可以克隆并在8080和8181端口编译并启动 HTTP 服务器：
 ```
 git clone https://github.com/LeeCenY/iRent.git
@@ -21,6 +22,9 @@ swift package generate-xcodeproj
 ## 待办事项清单
 - iOS 推送消息（APNs）
 - 房间图表 API
+- JSON 配置
+- 由服务器上传图片到七牛
+- MySQL 数据库备份
 
 ## License
 
