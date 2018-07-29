@@ -223,16 +223,24 @@ public class RentList: BaseHandler {
                     resError(request, response, error: "账单状态 state 请求参数不正确")
                     return
                 }
+                
                 //图片链接
                 guard let imageURL: String = dict["image_url"] as? String else {
                     resError(request, response, error: "图片链接 image_url 请求参数不正确")
                     return
                 }
                 
+                //推送token
+                guard let token: String = dict["token"] as? String else {
+                    resError(request, response, error: "推送 token 请求参数不正确")
+                    return
+                }
+
                 let roomTable = db().table(Room.self)
                 let queryID = roomTable.where(\Room.id == id && \Room.state == false)
 
-                guard try queryID.count() != 0 else {
+                guard try queryID.count() != 0,
+                    let room_no = try queryID.first()?.room_no else {
                     resError(request, response, error: "房间 id 不存在")
                     return
                 }
@@ -253,6 +261,20 @@ public class RentList: BaseHandler {
                 try paymentTable
                     .where(\Payment.room_id == id && \Payment.rent_date == rentDate)
                     .update(payment, setKeys: \.state, \.payee, \.money, \.image_url, \.updated_at)
+                
+                let userDB = db().table(User.self)
+                let userToKen = try userDB
+                    .where(\User.token != token)
+                    .select().map { $0.token }
+                
+                if userToKen.count != 0 {
+                    Pusher().pushAPNS(
+                        deviceTokens: userToKen,
+                        notificationItems: [.alertTitle(payee), .alertBody("\(room_no) 已收")]) {
+                            responses in
+                            print("\(responses)")
+                    }
+                }
                 
                 try response.setBody(json: ["success": true, "status": 200, "data": ["state": true]])
                 response.completed()

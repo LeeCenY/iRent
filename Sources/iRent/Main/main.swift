@@ -6,6 +6,7 @@ import PerfectHTTPServer
 try db().create(Room.self, policy: .reconcileTable)
 try db().create(Tenant.self, policy: .reconcileTable)
 try db().create(Payment.self, policy: .reconcileTable)
+try db().create(User.self, policy: .reconcileTable)
 
 //API版本
 let api = "api"

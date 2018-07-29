@@ -4,6 +4,7 @@ import PerfectHTTPServer
 import PerfectCrypto
 import PerfectCRUD
 import PerfectMySQL
+import PerfectNotifications
 
 /// HTTPServer 服务器配置
 ///
@@ -64,4 +65,28 @@ public struct QiniuConfig {
     }
 }
 
+public struct Pusher {
+    
+    // App Bundle Id
+    let notificationsAppId = "com.App.BundleId"
+    //key ID
+    let apnsKeyIdentifier = "KeyId"
+    //Team ID
+    let apnsTeamIdentifier = "TeamId"
+    //.p8 key File Path
+    let apnsPrivateKeyFilePath = "./AuthKey_KeyId.p8"
+    
+    init() {
+        NotificationPusher.addConfigurationAPNS(name: notificationsAppId, production: false, keyId: apnsKeyIdentifier, teamId: apnsTeamIdentifier, privateKeyPath: apnsPrivateKeyFilePath)
+    }
+    
+    func pushAPNS(deviceTokens: [String],
+                  notificationItems: [APNSNotificationItem],
+                  callback: @escaping ([NotificationResponse]) -> ()) {
+        
+        NotificationPusher
+            .init(apnsTopic: notificationsAppId)
+            .pushAPNS(configurationName: notificationsAppId, deviceTokens: deviceTokens, notificationItems: notificationItems, callback: callback)
+    }
+}
 
