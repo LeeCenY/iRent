@@ -128,6 +128,18 @@ public class ExpiredRent: BaseHandler {
                     return
                 }
                 
+                //水表阈值
+                guard let waterMax: Int = dict["water_max"] as? Int else {
+                    resError(request, response, error: "水表阈值 water_max 请求参数不正确")
+                    return
+                }
+                
+                //电表阈值
+                guard let electricityMax: Int = dict["electricity_max"] as? Int else {
+                    resError(request, response, error: "电表阈值 electricity_max 请求参数不正确")
+                    return
+                }
+                
                 //网络
                 guard let network: Int = dict["network"] as? Int else {
                     resError(request, response, error: "网络 network 请求参数不正确")
@@ -147,16 +159,15 @@ public class ExpiredRent: BaseHandler {
                     resError(request, response, error: "房间 id 不存在或已经退房")
                     return
                 }
-                
-                let room = Room.init(state: false, room_no: nil, rent_money: rentMeony, deposit: deposit, lease_term: nil, rent_date: nil, network: network, trash_fee: trashfee)
+
+                let room = Room(state: false, room_no: nil, rent_money: rentMeony, deposit: deposit, lease_term: nil, rent_date: nil, network: network, trash_fee: trashfee, water_max: waterMax, electricity_max: electricityMax)
                 
                 do {
                     try roomTable
                         .where(\Room.id == id && \Room.state == false)
-                        .update(room, setKeys: \.rent_money, \.deposit, \.network, \.trash_fee, \.updated_at)
+                        .update(room, ignoreKeys: \.id, \.room_no, \.lease_term, \.rent_date, \.create_at)
                 } catch {
                     try response.setBody(json: ["success": true, "status": 400, "data": "\(error)"])
-                    response.setHeader(.contentType, value: "application/json")
                     response.completed()
                     return
                 }
