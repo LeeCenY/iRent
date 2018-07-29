@@ -139,6 +139,8 @@ public class RentList: BaseHandler {
                             paymentDict["lease_term"] = roomRow.lease_term
                             paymentDict["network"] = roomRow.network
                             paymentDict["trash_fee"] = roomRow.trash_fee
+                            paymentDict["water_max"] = roomRow.water_max
+                            paymentDict["electricity_max"] = roomRow.electricity_max
 
                             paymentDict["id"] = row.id.uuidString
                             paymentDict["room_id"] = row.room_id.uuidString
@@ -320,6 +322,8 @@ public class RentList: BaseHandler {
                             paymentDict["lease_term"] = room.lease_term
                             paymentDict["network"] = room.network
                             paymentDict["trash_fee"] = room.trash_fee
+                            paymentDict["water_max"] = room.water_max
+                            paymentDict["electricity_max"] = room.electricity_max
                         }
 
                         //查询上月

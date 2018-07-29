@@ -18,8 +18,8 @@ struct Room: Codable {
     let rent_date: String?               //收租日期
     let network: Int?                       //网络
     let trash_fee: Int?                             //垃圾费
-    let water_max: Int?                     //水表最大值
-    let electricity_max: Int?               //电表最大值
+    let water_max: Int?                     //水表阈值
+    let electricity_max: Int?               //电表阈值
     let create_at: String            //创建时间
     let updated_at: String                //更新时间
     let payments:  [Payment]?
