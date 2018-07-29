@@ -41,10 +41,7 @@ public extension String {
     }
     
     func urlSafeBase64() -> String {
-        var base64 = self
-        base64 = base64.replacingOccurrences(of: "+", with: "_")
-        base64 = base64.replacingOccurrences(of: "/", with: "_")
-        return base64
+        return self.replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_")
     }
     
 }
