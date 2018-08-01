@@ -8,7 +8,7 @@ let package = Package(
         .package(url: "https://github.com/PerfectlySoft/Perfect-MySQL.git", from: "3.2.0"),
         .package(url: "https://github.com/MatthewYork/DateTools.git", from: "4.0.0"),
         .package(url: "https://github.com/PerfectlySoft/Perfect-Notifications.git", from: "3.0.3"),
-        .package(url: "https://github.com/LeeCenY/Perfect-Qiniu.git", from: "1.0.3"),
+        .package(url: "https://github.com/LeeCenY/Perfect-Qiniu.git", from: "1.0.2"),
         ],
     targets: [
         .target(
