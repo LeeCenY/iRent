@@ -4,6 +4,7 @@ import PerfectLib
 import PerfectHTTP
 import PerfectCRUD
 import DateToolsSwift
+import PerfectQiniu
 
 /// 收租信息列表
 public class RentList: BaseHandler {
@@ -191,86 +192,78 @@ public class RentList: BaseHandler {
         return {
             request, response in
             do {
-                guard
-                    let json = request.postBodyString,
-                    let dict = try json.jsonDecode() as? [String: Any]
-                    else {
-                        resError(request, response, error: "请填写请求参数")
-                        return
-                }
-                //id
-                guard let id = UUID.init(uuidString: (dict["id"] as? String)!) else {
-                    resError(request, response, error: "id 请求参数不正确")
-                    return
-                }
+                let userReq = try request.decode(UploadFile.self)
                 //收租时间
-                guard let rentDate: String = dict["rent_date"] as? String, rentDate.toDate() != nil else {
+                guard !userReq.rentDate.isEmpty, userReq.rentDate.toDate() != nil else {
                     resError(request, response, error: "收租时间 rentdate 请求参数不正确")
                     return
                 }
                 //总数
-                guard let money: String = dict["money"] as? String, Double(money) != nil else {
+                guard userReq.money >= 0  else {
                     resError(request, response, error: "总数 money 请求参数不正确")
                     return
                 }
                 //收款人
-                guard let payee: String = dict["payee"] as? String else {
+                guard !userReq.payee.isEmpty else {
                     resError(request, response, error: "收款人 payee 请求参数不正确")
                     return
                 }
-                //账单状态
-                guard let state: Bool = dict["state"] as? Bool else {
-                    resError(request, response, error: "账单状态 state 请求参数不正确")
-                    return
-                }
-                
-                //图片链接
-                guard let imageURL: String = dict["image_url"] as? String else {
-                    resError(request, response, error: "图片链接 image_url 请求参数不正确")
-                    return
-                }
-                
                 //推送token
-                guard let token: String = dict["token"] as? String else {
+                guard !userReq.token.isEmpty else {
                     resError(request, response, error: "推送 token 请求参数不正确")
                     return
                 }
-
+                
                 let roomTable = db().table(Room.self)
-                let queryID = roomTable.where(\Room.id == id && \Room.state == false)
-
+                let queryID = roomTable.where(\Room.id == userReq.id && \Room.state == false)
+                
                 guard try queryID.count() != 0,
                     let room_no = try queryID.first()?.room_no else {
-                    resError(request, response, error: "房间 id 不存在")
+                        resError(request, response, error: "房间 id 不存在")
+                        return
+                }
+                
+                guard let uploads = request.postFileUploads,
+                    !uploads.isEmpty,
+                    let uploadsLast = uploads.last else {
+                        resError(request, response, error: "文件数据有误")
+                        return
+                }
+                
+                let fileName = uploadsLast.fileName    //文件名
+                let tmpFileName = uploadsLast.tmpFileName    //上载后的临时文件名
+                
+                let upload = try Qiniu.upload(fileName: fileName, file: tmpFileName, config: QiniuConfig())
+                guard let uploadkey = upload["key"] as? String else {
+                    resError(request, response, error: "上传失败")
                     return
                 }
-
-                let payment = Payment.init(room_id: UUID(), state: state, payee: payee, rent_date: rentDate, money: Double(money)!, rent_money: nil, water: nil, electricity: nil, network: nil, trash_fee: nil, image_url: imageURL, arrears: nil, remark: nil)
+                
+                let payment = Payment.init(room_id: UUID(), state: userReq.state, payee: userReq.payee, rent_date: userReq.rentDate, money: userReq.money, rent_money: nil, water: nil, electricity: nil, network: nil, trash_fee: nil, image_url: uploadkey, arrears: nil, remark: nil)
                 
                 let paymentTable = db().table(Payment.self)
-                
                 let query = try paymentTable
-                    .where(\Payment.room_id == id && \Payment.rent_date == rentDate && \Payment.state == true)
+                    .where(\Payment.room_id == userReq.id && \Payment.rent_date == userReq.rentDate && \Payment.state == true)
                     .count()
                 if (query > 0) {
                     try response.setBody(json: ["success": true, "status": 200, "data": "已经到账"])
                     response.completed()
                     return
                 }
-            
+                
                 try paymentTable
-                    .where(\Payment.room_id == id && \Payment.rent_date == rentDate)
+                    .where(\Payment.room_id == userReq.id && \Payment.rent_date == userReq.rentDate)
                     .update(payment, setKeys: \.state, \.payee, \.money, \.image_url, \.updated_at)
                 
                 let userDB = db().table(User.self)
                 let userToKen = try userDB
-                    .where(\User.token != token)
+                    .where(\User.token != userReq.token)
                     .select().map { $0.token }
                 
                 if userToKen.count != 0 {
                     Pusher().pushAPNS(
                         deviceTokens: userToKen,
-                        notificationItems: [.alertTitle(payee), .alertBody("\(room_no) 已收")]) {
+                        notificationItems: [.alertTitle(userReq.payee), .alertBody("\(room_no) 已收")]) {
                             responses in
                             print("\(responses)")
                     }
@@ -278,9 +271,21 @@ public class RentList: BaseHandler {
                 
                 try response.setBody(json: ["success": true, "status": 200, "data": ["state": true]])
                 response.completed()
+            } catch DecodingError.dataCorrupted(let context) {
+                resError(request, response, error: "\(context.debugDescription) 请求参数值不正确")
+                Log.error(message: "details : \(context.debugDescription) 请求参数值不正确")
+            } catch DecodingError.keyNotFound(let key, _) {
+                resError(request, response, error: "\(key.stringValue) 请求参数缺少")
+                Log.error(message: "details : \(key.stringValue) 请求参数缺少")
+            } catch DecodingError.typeMismatch(let type, _) {
+                resError(request, response, error: "\(type) 的参数值不匹配")
+                Log.error(message: "details : \(type) 的参数值不匹配")
+            } catch DecodingError.valueNotFound(let type, _) {
+                resError(request, response, error: "\(type) 不存在的值")
+                Log.error(message: "details : \(type) 不存在的值")
             } catch {
-                serverErrorHandler(request, response)
-                Log.error(message: "update : \(error)")
+                resError(request, response, error: "不知错误原因")
+                Log.error(message: "details : 不知错误原因")
             }
         }
     }
