@@ -20,10 +20,10 @@ swift package generate-xcodeproj
 这表明服务器已经准备好并且等待连接了。请访问http://localhost:8181/ 来查看欢迎信息。
 
 ## 待办事项清单
-- [ ✅]  iOS 推送消息（APNs）
+- [ ✅] iOS 推送消息（APNs）
 - 房间图表 API
 - JSON 配置
-- 由服务器上传图片到七牛
+- [ ✅] 由服务器上传图片到七牛
 - MySQL 数据库备份
 
 ## License
