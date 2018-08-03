@@ -9,6 +9,8 @@ let package = Package(
         .package(url: "https://github.com/MatthewYork/DateTools.git", from: "4.0.0"),
         .package(url: "https://github.com/PerfectlySoft/Perfect-Notifications.git", from: "3.0.3"),
         .package(url: "https://github.com/LeeCenY/Perfect-Qiniu.git", from: "1.0.3"),
+        .package(url: "https://github.com/PerfectlySoft/Perfect-Zip.git", from: "3.0.3"),
+        .package(url: "https://github.com/PerfectlySoft/Perfect-Repeater.git", from: "1.0.1"),
         ],
     targets: [
         .target(
@@ -18,7 +20,10 @@ let package = Package(
                 "PerfectMySQL",
                 "DateToolsSwift",
                 "PerfectNotifications",
-                "PerfectQiniu"]
+                "PerfectQiniu",
+                "PerfectZip",
+                "PerfectRepeater"
+            ]
         ),
     ]
 )
