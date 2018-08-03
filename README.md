@@ -24,7 +24,7 @@ swift package generate-xcodeproj
 - 房间图表 API
 - JSON 配置
 - [ ✅] 由服务器上传图片到七牛
-- MySQL 数据库备份
+- [ ✅] MySQL 数据库备份
 
 ## License
 
