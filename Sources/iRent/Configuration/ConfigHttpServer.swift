@@ -44,14 +44,30 @@ public func db() -> Database<MySQLDatabaseConfiguration> {
 
 
 /// 七牛 key and token
-public func QiniuConfig() -> QiniuConfiguration {
+public struct QiniuConfig {
     
     let AccessKey = "在七牛上注册账号分配"
     let SecretKey = "在七牛上注册账号分配"
-    let Scope = "空间名"
     let DEBUG = false
     
-    return QiniuConfiguration(accessKey: AccessKey, secretKey: SecretKey, scope: Scope, fixedZone: .HNzone, DEBUG: DEBUG)
+    //空间名
+    enum QiniuScope: String {
+        case DBBackup = "数据库备份空间名"
+        case Project = "项目空间名"
+    }
+
+    func Scope( _ qiniuScope: QiniuScope) -> QiniuConfiguration {
+        return QiniuConfiguration(accessKey: AccessKey, secretKey: SecretKey, scope: qiniuScope.rawValue, fixedZone: .HNzone, DEBUG: DEBUG)
+    }
+    
+    func ProjectScope() -> QiniuConfiguration {
+        return self.Scope(.Project)
+    }
+
+    func DBBackupScope() -> QiniuConfiguration {
+       return self.Scope(.DBBackup)
+    }
+    
 }
 
 public struct Pusher {

@@ -233,7 +233,8 @@ public class RentList: BaseHandler {
                 let fileName = uploadsLast.fileName    //文件名
                 let tmpFileName = uploadsLast.tmpFileName    //上载后的临时文件名
                 
-                let upload = try Qiniu.upload(fileName: fileName, file: tmpFileName, config: QiniuConfig())
+                let qiniuConfig = QiniuConfig().ProjectScope()
+                let upload = try Qiniu.upload(fileName: fileName, file: tmpFileName, config: qiniuConfig)
                 guard let uploadkey = upload["key"] as? String else {
                     resError(request, response, error: "上传失败")
                     return
