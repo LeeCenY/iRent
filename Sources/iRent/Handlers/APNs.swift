@@ -52,20 +52,7 @@ public class APNs: BaseHandler {
                 } catch  {
                     resError(request, response, error: "添加失败")
                 }
-                
-                let userToKen = try userDB
-                    .where(\User.token == userReq.token)
-                    .select().map { $0.token }
-                
-                if userToKen.count != 0 {
-                    Pusher().pushAPNS(
-                        deviceTokens: userToKen,
-                        notificationItems: [.alertTitle("岑磊"), .alertBody("702 已收")]) {
-                            responses in
-                            print("\(responses)")
-                    }
-                }
-                
+
                 try response.setBody(json: ["success": true, "status": 200, "data": "添加成功"])
                 response.completed()
             }catch {
